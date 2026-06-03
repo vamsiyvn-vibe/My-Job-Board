@@ -48,6 +48,11 @@
                     <span>All Job Leads</span>
                     <span class="badge" id="badge-all">0</span>
                 </button>
+                <button class="nav-item" data-status="Connections" id="nav-item-connections">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Connections</span>
+                    <span class="badge" id="badge-connections">0</span>
+                </button>
                 <button class="nav-item" data-status="Criteria">
                     <i class="fa-solid fa-sliders"></i>
                     <span>Search Criteria</span>
@@ -203,6 +208,7 @@
                                 <th>Company</th>
                                 <th>Location</th>
                                 <th>Cohort</th>
+                                <th>Connections</th>
                                 <th>Date Added</th>
                                 <th style="text-align: right; padding-right: 24px;">Actions</th>
                             </tr>
@@ -285,6 +291,76 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Connections View Panel -->
+            <section class="criteria-panel connections-panel" id="connections-section" style="display: none;">
+                <div class="connections-grid">
+                    <!-- Left Column: Instructions and upload dropzone -->
+                    <div class="glass-panel upload-widget">
+                        <div class="panel-card-header">
+                            <h3 class="panel-section-title"><i class="fa-solid fa-file-import"></i> Import LinkedIn Connections</h3>
+                        </div>
+                        <div class="connections-instructions">
+                            <h4>How to get your Connections CSV from LinkedIn:</h4>
+                            <ol>
+                                <li>Click your profile picture in the top right of LinkedIn and select <strong>Settings & Privacy</strong>.</li>
+                                <li>Go to <strong>Data privacy</strong> in the left sidebar.</li>
+                                <li>Under the <strong>How LinkedIn uses your data</strong> section, click on <strong>Get a copy of your data</strong>.</li>
+                                <li>Select the second option: <strong>Want something in particular? Select the data files you're most interested in.</strong></li>
+                                <li>Check the <strong>Connections</strong> box and click <strong>Request archive</strong>.</li>
+                                <li>Enter your password. Within ~10 minutes, you will receive an email containing a download link for a zip archive containing <code>Connections.csv</code>.</li>
+                            </ol>
+                        </div>
+                        <div class="upload-dropzone" id="connections-dropzone">
+                            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                            <p>Drag and drop your <strong>Connections.csv</strong> file here, or click to browse</p>
+                            <input type="file" id="connections-file-input" accept=".csv" style="display: none;">
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Stats and Table of Connections -->
+                    <div class="glass-panel connections-list-widget">
+                        <div class="panel-card-header">
+                            <h3 class="panel-section-title"><i class="fa-solid fa-address-book"></i> Parsed Network</h3>
+                            <div class="header-actions">
+                                <button type="button" id="btn-clear-connections" class="btn btn-outline btn-sm">
+                                    <i class="fa-solid fa-trash-can"></i> Clear Network
+                                </button>
+                            </div>
+                        </div>
+                        <div class="connections-stats">
+                            <div class="stat-card mini">
+                                <span class="stat-value" id="conn-stat-total">0</span>
+                                <span class="stat-label">Total Contacts</span>
+                            </div>
+                            <div class="stat-card mini">
+                                <span class="stat-value" id="conn-stat-companies">0</span>
+                                <span class="stat-label">Unique Companies</span>
+                            </div>
+                        </div>
+                        <div class="search-box text-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="conn-search-input" placeholder="Search contacts by name or company...">
+                        </div>
+                        <div class="connections-table-wrapper scrollable-table-wrapper">
+                            <table class="connections-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Company</th>
+                                        <th>Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="connections-list-body">
+                                    <tr>
+                                        <td colspan="3" class="table-empty">No connections imported. Upload a CSV to get started.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -413,6 +489,10 @@
                     <i class="fa-solid fa-clipboard-check"></i>
                     <span>Application Tracker</span>
                 </button>
+                <button class="modal-tab" data-tab="referrals" id="modal-tab-referrals" style="display: none;">
+                    <i class="fa-solid fa-people-arrows"></i>
+                    <span>Referrals</span>
+                </button>
             </div>
 
             <div class="modal-body">
@@ -524,6 +604,47 @@
                                 <i class="fa-solid fa-floppy-disk"></i> Save Tracking Updates
                             </button>
                         </form>
+                    </div>
+                </div>
+
+                <!-- Referrals Tab -->
+                <div class="tab-pane" id="pane-referrals">
+                    <div class="referrals-panel-container">
+                        <div class="referrals-header">
+                            <h4><i class="fa-solid fa-users-viewfinder"></i> Connections at this Company</h4>
+                            <p>Select a connection below to automatically draft a tailored referral outreach message.</p>
+                        </div>
+                        <div class="referrals-split">
+                            <!-- Left: List of connections at company -->
+                            <div class="referrals-list-box">
+                                <div class="connections-table-wrapper scrollable-table-wrapper">
+                                    <table class="referrals-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 40px; text-align: center;">Select</th>
+                                                <th>Name</th>
+                                                <th>Position</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="referrals-list-body">
+                                            <!-- Injected dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Right: Message Draft Card -->
+                            <div class="referrals-draft-box">
+                                <div class="draft-card">
+                                    <div class="draft-card-header">
+                                        <span><i class="fa-solid fa-envelope-open-text"></i> Draft Outreach Message</span>
+                                        <button class="btn btn-outline btn-xs" id="btn-copy-referral">
+                                            <i class="fa-solid fa-copy"></i> Copy Draft
+                                        </button>
+                                    </div>
+                                    <textarea id="referral-message-draft" readonly placeholder="Select a connection to generate a customized referral request draft..."></textarea>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

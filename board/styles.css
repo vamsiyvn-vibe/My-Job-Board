@@ -2041,3 +2041,436 @@ h1, h2, h3, h4, h5, h6 {
     background-color: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* ==========================================================================
+   LinkedIn Connections & Referrals Styles
+   ========================================================================== */
+
+.btn-xs {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    border-radius: var(--radius-sm);
+}
+
+.connections-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 24px;
+    width: 100%;
+    margin-top: 16px;
+    height: calc(100vh - 200px);
+}
+
+.upload-widget {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.connections-instructions {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.connections-instructions h4 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+
+.connections-instructions ol {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.connections-instructions li strong {
+    color: var(--text-primary);
+}
+
+.connections-instructions code {
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #f43f5e;
+}
+
+.upload-dropzone {
+    border: 2px dashed rgba(99, 102, 241, 0.3);
+    border-radius: var(--radius-md);
+    padding: 40px 20px;
+    text-align: center;
+    background-color: rgba(99, 102, 241, 0.02);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: auto;
+    margin-bottom: 10px;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: var(--primary);
+    background-color: rgba(99, 102, 241, 0.06);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
+}
+
+.dropzone-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+    transition: transform var(--transition-fast);
+}
+
+.upload-dropzone:hover .dropzone-icon {
+    transform: translateY(-4px);
+}
+
+.upload-dropzone p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.connections-list-widget {
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+.connections-stats {
+    display: flex;
+    gap: 16px;
+}
+
+.stat-card.mini {
+    flex: 1;
+    padding: 12px 16px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.stat-card.mini .stat-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-card.mini .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.text-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.text-input-wrapper input {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 16px 12px 42px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: var(--transition-fast);
+}
+
+.text-input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.text-input-wrapper .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.scrollable-table-wrapper {
+    overflow-y: auto;
+    flex-grow: 1;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.connections-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.connections-table th {
+    background-color: rgba(15, 23, 42, 0.85);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(8px);
+}
+
+.connections-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.connections-table tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+    color: var(--text-primary);
+}
+
+.connections-table td a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.connections-table td a:hover {
+    color: #818cf8;
+    text-decoration: underline;
+}
+
+.table-empty {
+    text-align: center;
+    color: var(--text-muted) !important;
+    padding: 40px 20px !important;
+    font-style: italic;
+}
+
+/* Job Grid/List Matching Connections styles */
+.conn-cell-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.conn-link {
+    color: #3b82f6 !important;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color var(--transition-fast);
+}
+
+.conn-link:hover {
+    color: #60a5fa !important;
+    text-decoration: underline;
+}
+
+.conn-link i {
+    font-size: 0.75rem;
+}
+
+.conn-badge-pill {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 2px 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: help;
+    transition: var(--transition-fast);
+    display: inline-block;
+}
+
+.conn-badge-pill:hover {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+/* Card view connections list inside grid cards */
+.card-connections {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.card-connections .conn-link {
+    font-size: 0.8rem;
+}
+
+/* Referrals tab modal styles */
+.referrals-panel-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+.referrals-header {
+    margin-bottom: 4px;
+}
+
+.referrals-header h4 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.referrals-header p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.referrals-split {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 20px;
+    flex-grow: 1;
+    min-height: 250px;
+}
+
+.referrals-list-box {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    height: 100%;
+}
+
+.referrals-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.referrals-table th {
+    background-color: rgba(15, 23, 42, 0.85);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.referrals-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+
+.referrals-table tbody tr {
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.referrals-table tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+    color: var(--text-primary);
+}
+
+.referrals-table tbody tr.selected td {
+    background-color: rgba(99, 102, 241, 0.08);
+    color: var(--text-primary);
+}
+
+.referrals-radio {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+}
+
+.referrals-draft-box {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.draft-card {
+    border-radius: var(--radius-md);
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.draft-card-header {
+    background-color: rgba(15, 23, 42, 0.6);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.draft-card-header span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#referral-message-draft {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    padding: 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    resize: none;
+    outline: none;
+    height: 100%;
+    min-height: 180px;
+}
+
+#referral-message-draft:focus {
+    outline: none;
+}

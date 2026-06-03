@@ -997,6 +997,112 @@ def get_company_insights():
     insights = get_insights(company)
     return jsonify(insights)
 
+# --- LINKEDIN CONNECTIONS API ---
+CONNECTIONS_PATH = r"G:\My Drive\.Agents\1_Projects\2026 Job Search\board\connections.json"
+
+def load_connections():
+    if not os.path.exists(CONNECTIONS_PATH):
+        return []
+    try:
+        with open(CONNECTIONS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print("Error loading connections:", e)
+        return []
+
+def save_connections(data):
+    try:
+        with open(CONNECTIONS_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print("Error saving connections:", e)
+        return False
+
+@app.route('/api/connections', methods=['GET'])
+def get_connections():
+    return jsonify(load_connections())
+
+@app.route('/api/connections/clear', methods=['POST'])
+def clear_connections():
+    if save_connections([]):
+        return jsonify({"success": True, "message": "Connections cleared successfully."})
+    return jsonify({"error": "Failed to clear connections."}), 500
+
+@app.route('/api/connections/upload', methods=['POST'])
+def upload_connections():
+    import csv
+    import io
+    import urllib.parse
+    
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request."}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file."}), 400
+        
+    if not file.filename.endswith('.csv'):
+        return jsonify({"error": "Only CSV files are supported."}), 400
+        
+    try:
+        # Read the file content as text
+        stream = io.StringIO(file.stream.read().decode("utf-8"), newline=None)
+        csv_content = stream.read()
+        
+        lines = csv_content.splitlines()
+        header_idx = -1
+        for idx, line in enumerate(lines):
+            # Check if this line looks like the header
+            if "First Name" in line and "Last Name" in line:
+                header_idx = idx
+                break
+                
+        if header_idx == -1:
+            header_idx = 0
+            
+        csv_data = "\n".join(lines[header_idx:])
+        reader = csv.DictReader(io.StringIO(csv_data))
+        
+        # Normalize header names (strip whitespace and remove BOM if present)
+        if reader.fieldnames:
+            reader.fieldnames = [name.strip().replace('\ufeff', '') for name in reader.fieldnames]
+            
+        parsed_connections = []
+        for row in reader:
+            first_name = (row.get("First Name") or "").strip()
+            last_name = (row.get("Last Name") or "").strip()
+            company = (row.get("Company") or "").strip()
+            position = (row.get("Position") or "").strip()
+            url = (row.get("URL") or "").strip()
+            
+            # Skip rows where name is empty
+            if not first_name and not last_name:
+                continue
+                
+            # If no URL is provided, generate a search URL
+            if not url:
+                query = f"{first_name} {last_name}".strip()
+                url = f"https://www.linkedin.com/search/results/people/?keywords={urllib.parse.quote(query)}"
+                
+            parsed_connections.append({
+                "first_name": first_name,
+                "last_name": last_name,
+                "company": company,
+                "position": position,
+                "url": url
+            })
+            
+        save_connections(parsed_connections)
+        return jsonify({
+            "success": True, 
+            "message": f"Successfully parsed and saved {len(parsed_connections)} connections.",
+            "connections": parsed_connections
+        })
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to parse CSV file: {str(e)}"}), 500
+
 if __name__ == '__main__':
     print("Starting My Job Board backend on http://localhost:5000")
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -48,6 +48,7 @@ Job_Applications_Tracker.xlsx
 .system_generated/
 .gemini/
 board/config.json
+board/connections.json
 
 # Temporary/Lock Files
 ~$*.xlsx

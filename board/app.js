@@ -28,7 +28,11 @@ let state = {
     // Tracked Companies list
     trackedCompanies: [],
     companiesSortColumn: 'cohort',
-    companiesSortDirection: 'asc'
+    companiesSortDirection: 'asc',
+    
+    // LinkedIn Connections Network
+    connections: [],
+    connSearchQuery: ''
 };
 
 // API Base URL
@@ -119,7 +123,24 @@ const elements = {
     trackStatus: document.getElementById('track-status'),
     trackOutcome: document.getElementById('track-outcome'),
     trackResume: document.getElementById('track-resume'),
-    btnViewResume: document.getElementById('btn-view-resume')
+    btnViewResume: document.getElementById('btn-view-resume'),
+
+    // Connections Panel elements
+    badgeConnections: document.getElementById('badge-connections'),
+    connectionsSection: document.getElementById('connections-section'),
+    connectionsDropzone: document.getElementById('connections-dropzone'),
+    connectionsFileInput: document.getElementById('connections-file-input'),
+    btnClearConnections: document.getElementById('btn-clear-connections'),
+    connStatTotal: document.getElementById('conn-stat-total'),
+    connStatCompanies: document.getElementById('conn-stat-companies'),
+    connSearchInput: document.getElementById('conn-search-input'),
+    connectionsListBody: document.getElementById('connections-list-body'),
+    
+    // Referrals modal elements
+    modalTabReferrals: document.getElementById('modal-tab-referrals'),
+    referralsListBody: document.getElementById('referrals-list-body'),
+    referralMessageDraft: document.getElementById('referral-message-draft'),
+    btnCopyReferral: document.getElementById('btn-copy-referral')
 };
 
 // Initialize Application
@@ -127,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchJobs();
     fetchCriteria();
     fetchCompanies();
+    fetchConnections();
     setupEventListeners();
 });
 
@@ -294,6 +316,55 @@ function setupEventListeners() {
             elements.btnViewResume.style.display = 'none';
         }
     });
+
+    // Connections Drag-and-Drop Dropzone Setup
+    if (elements.connectionsDropzone) {
+        elements.connectionsDropzone.addEventListener('click', () => {
+            if (elements.connectionsFileInput) elements.connectionsFileInput.click();
+        });
+        
+        elements.connectionsDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.connectionsDropzone.classList.add('dragover');
+        });
+        
+        ['dragleave', 'dragend', 'drop'].forEach(evt => {
+            elements.connectionsDropzone.addEventListener(evt, () => {
+                elements.connectionsDropzone.classList.remove('dragover');
+            });
+        });
+        
+        elements.connectionsDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleConnectionsUpload(files[0]);
+            }
+        });
+    }
+    
+    if (elements.connectionsFileInput) {
+        elements.connectionsFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleConnectionsUpload(e.target.files[0]);
+            }
+        });
+    }
+    
+    if (elements.btnClearConnections) {
+        elements.btnClearConnections.addEventListener('click', clearConnections);
+    }
+    
+    if (elements.connSearchInput) {
+        elements.connSearchInput.addEventListener('input', (e) => {
+            state.connSearchQuery = e.target.value;
+            renderConnectionsTable();
+        });
+    }
+    
+    if (elements.btnCopyReferral) {
+        elements.btnCopyReferral.addEventListener('click', copyReferralMessage);
+    }
 }
 
 // Fetch Jobs
@@ -716,6 +787,8 @@ function updateBadges() {
 
 // Update View Header titles
 function updateViewHeader() {
+    if (elements.connectionsSection) elements.connectionsSection.style.display = 'none';
+
     if (state.currentView === 'All') {
         elements.headerStats.style.display = 'flex';
         elements.dashboardControls.style.display = 'block';
@@ -759,6 +832,17 @@ function updateViewHeader() {
         
         fetchCriteria();
         fetchCompanies();
+    } else if (state.currentView === 'Connections') {
+        elements.headerStats.style.display = 'none';
+        elements.dashboardControls.style.display = 'none';
+        elements.jobsContainerSec.style.display = 'none';
+        elements.criteriaSection.style.display = 'none';
+        if (elements.connectionsSection) elements.connectionsSection.style.display = 'block';
+        
+        elements.viewTitle.textContent = 'LinkedIn Network Connections';
+        elements.viewDesc.textContent = 'Import and search LinkedIn connections to identify potential referrals.';
+        
+        fetchConnections();
     }
 }
 
@@ -907,7 +991,7 @@ function showLoader(show) {
 
 // Render main list / grid view
 function render() {
-    if (state.currentView === 'Criteria') return;
+    if (state.currentView === 'Criteria' || state.currentView === 'Connections') return;
 
     // Get active sync companies to only display their leads
     const activeSyncCompanies = state.trackedCompanies
@@ -1158,6 +1242,30 @@ function renderGrid(jobs) {
         const salaryClass = hasSalary ? 'salary-value' : 'salary-na';
         const salaryText = hasSalary ? job.salary : 'Salary N/A';
 
+        // Check LinkedIn Connections
+        const matches = findCompanyConnections(job.company);
+        let connectionsHtml = '';
+        if (matches.length > 0) {
+            const first = matches[0];
+            const name = `${first.first_name} ${first.last_name}`;
+            const linkHtml = `<a href="${first.url}" target="_blank" class="conn-link" onclick="event.stopPropagation();"><i class="fa-brands fa-linkedin"></i> ${name}</a>`;
+            if (matches.length > 1) {
+                connectionsHtml = `
+                    <div class="card-connections">
+                        <i class="fa-solid fa-users text-primary"></i>
+                        <span>${linkHtml} <span class="conn-badge-pill" title="${matches.slice(1).map(c => `${c.first_name} ${c.last_name}`).join(', ')}">+${matches.length - 1}</span></span>
+                    </div>
+                `;
+            } else {
+                connectionsHtml = `
+                    <div class="card-connections">
+                        <i class="fa-solid fa-users text-primary"></i>
+                        <span>${linkHtml}</span>
+                    </div>
+                `;
+            }
+        }
+
         card.innerHTML = `
             <div class="card-top">
                 <div class="card-header">
@@ -1178,6 +1286,7 @@ function renderGrid(jobs) {
                     <i class="fa-solid fa-money-bill-wave"></i>
                     <span>${salaryText}</span>
                 </div>
+                ${connectionsHtml}
                 ${trackingTagsHtml}
             </div>
             <div class="card-bottom">
@@ -1207,6 +1316,7 @@ function renderList(jobs) {
                 ${sortableTh('Company', 'company')}
                 ${sortableTh('Location', 'location')}
                 ${sortableTh('Cohort', 'cohort')}
+                <th>Connections</th>
                 ${sortableTh('Compensation', 'salary')}
                 ${sortableTh('Application Stage', 'app_status')}
                 ${sortableTh('Outcome', 'app_outcome')}
@@ -1229,6 +1339,7 @@ function renderList(jobs) {
                 ${sortableTh('Company', 'company')}
                 ${sortableTh('Location', 'location')}
                 ${sortableTh('Cohort', 'cohort')}
+                <th>Connections</th>
                 ${sortableTh('Compensation', 'salary')}
                 ${statusOrDateHeader}
                 <th style="text-align: right; padding-right: 24px;">Actions</th>
@@ -1260,6 +1371,33 @@ function renderList(jobs) {
         const cohortClass = getCohortClass(job.cohort);
         let actionsHtml = getActionsHtml(job);
 
+        // Fetch LinkedIn Connections matches for this row
+        const matches = findCompanyConnections(job.company);
+        let connectionsCellHtml = '<td style="color: var(--text-muted); font-size: 0.85rem;">None</td>';
+        if (matches.length > 0) {
+            const first = matches[0];
+            const name = `${first.first_name} ${first.last_name}`;
+            const linkHtml = `<a href="${first.url}" target="_blank" class="conn-link" onclick="event.stopPropagation();"><i class="fa-brands fa-linkedin"></i> ${name}</a>`;
+            if (matches.length > 1) {
+                connectionsCellHtml = `
+                    <td>
+                        <div class="conn-cell-wrapper">
+                            ${linkHtml}
+                            <span class="conn-badge-pill" title="${matches.slice(1).map(c => `${c.first_name} ${c.last_name}`).join(', ')}">+${matches.length - 1}</span>
+                        </div>
+                    </td>
+                `;
+            } else {
+                connectionsCellHtml = `
+                    <td>
+                        <div class="conn-cell-wrapper">
+                            ${linkHtml}
+                        </div>
+                    </td>
+                `;
+            }
+        }
+
         if (state.currentView === 'Consideration') {
             const trackerTagClass = getTrackerTagClass(job.app_status);
             
@@ -1285,6 +1423,7 @@ function renderList(jobs) {
                 <td class="table-company">${job.company}</td>
                 <td style="color: var(--text-secondary);">${job.location}</td>
                 <td><span class="cohort-tag ${cohortClass}" title="${getCohortTooltip(job.cohort)}">${job.cohort}</span></td>
+                ${connectionsCellHtml}
                 <td>${salaryCellHtml}</td>
                 <td>
                     <span class="card-tracker-tag ${trackerTagClass}" style="margin-top:0;">
@@ -1339,6 +1478,7 @@ function renderList(jobs) {
                 <td class="table-company">${job.company}</td>
                 <td style="color: var(--text-secondary);">${job.location}</td>
                 <td><span class="cohort-tag ${cohortClass}" title="${getCohortTooltip(job.cohort)}">${job.cohort}</span></td>
+                ${connectionsCellHtml}
                 <td>${salaryCellHtml}</td>
                 ${middleColHtml}
                 <td>
@@ -1466,6 +1606,15 @@ async function openJobDetails(job) {
         }
     } else {
         elements.modalTabTracking.style.display = 'none';
+    }
+
+    // Toggle Referrals Tab display: only show if in Consideration Set and has matching connections
+    const modalTabReferrals = document.getElementById('modal-tab-referrals');
+    if (job.status === 'Consideration' && matches.length > 0) {
+        if (modalTabReferrals) modalTabReferrals.style.display = 'block';
+        populateReferralsTab(job, matches);
+    } else {
+        if (modalTabReferrals) modalTabReferrals.style.display = 'none';
     }
 
     // Reset modal tabs to Description
@@ -1674,4 +1823,258 @@ function showToast(message, type = 'info') {
         toast.classList.remove('show');
         setTimeout(() => { toast.remove(); }, 300);
     }, 4000);
+}
+
+// --- LINKEDIN CONNECTIONS LOGIC ---
+
+// Fetch connections from server
+async function fetchConnections() {
+    try {
+        const response = await fetch(`${API_BASE}/api/connections`);
+        if (!response.ok) throw new Error('Failed to load connections');
+        
+        state.connections = await response.json();
+        
+        // Update sidebar badge
+        const badge = document.getElementById('badge-connections');
+        if (badge) {
+            badge.textContent = state.connections.length;
+            badge.style.display = state.connections.length > 0 ? 'inline-block' : 'none';
+        }
+        
+        // Update stats
+        const connTotal = document.getElementById('conn-stat-total');
+        if (connTotal) connTotal.textContent = state.connections.length;
+        
+        const uniqueCompanies = new Set(
+            state.connections
+                .map(c => normalizeCompanyName(c.company))
+                .filter(c => c !== '')
+        );
+        const connCompanies = document.getElementById('conn-stat-companies');
+        if (connCompanies) connCompanies.textContent = uniqueCompanies.size;
+        
+        renderConnectionsTable();
+    } catch (error) {
+        console.error("Error fetching connections:", error);
+    }
+}
+
+// Normalize company names for matching
+function normalizeCompanyName(name) {
+    if (!name) return '';
+    return name.toLowerCase()
+        .replace(/\b(llc|inc|corp|ltd|co|corporation|incorporated|technologies|services|labs|group|usa|us)\b/gi, '')
+        .replace(/[^a-z0-9]/gi, '')
+        .trim();
+}
+
+// Find matches for a specific company name
+function findCompanyConnections(companyName) {
+    if (!state.connections || state.connections.length === 0 || !companyName) return [];
+    
+    const targetNorm = normalizeCompanyName(companyName);
+    if (!targetNorm) return [];
+    
+    return state.connections.filter(c => {
+        const connNorm = normalizeCompanyName(c.company);
+        if (!connNorm) return false;
+        return connNorm.includes(targetNorm) || targetNorm.includes(connNorm);
+    });
+}
+
+// Render the imported connections table
+function renderConnectionsTable() {
+    const tbody = document.getElementById('connections-list-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    const query = (state.connSearchQuery || '').trim().toLowerCase();
+    const filtered = state.connections.filter(c => {
+        if (!query) return true;
+        const name = `${c.first_name} ${c.last_name}`.toLowerCase();
+        const comp = (c.company || '').toLowerCase();
+        const pos = (c.position || '').toLowerCase();
+        return name.includes(query) || comp.includes(query) || pos.includes(query);
+    });
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="table-empty">
+                    ${query ? 'No matching contacts found.' : 'No connections imported. Upload a CSV to get started.'}
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    filtered.forEach(c => {
+        const row = document.createElement('tr');
+        const name = `${c.first_name} ${c.last_name}`;
+        
+        row.innerHTML = `
+            <td>
+                <a href="${c.url}" target="_blank" class="conn-link">
+                    <i class="fa-brands fa-linkedin"></i> ${name}
+                </a>
+            </td>
+            <td style="color: var(--text-primary); font-weight: 500;">${c.company || 'N/A'}</td>
+            <td style="font-size: 0.82rem;">${c.position || 'N/A'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Handle connections CSV upload
+async function handleConnectionsUpload(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    showToast('Uploading and parsing connections...', 'info');
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/connections/upload`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to upload file');
+        
+        showToast(data.message || 'Connections uploaded successfully!', 'success');
+        await fetchConnections();
+        
+        // Re-render the main lists to show matching badges
+        render();
+    } catch (error) {
+        console.error("Upload error:", error);
+        showToast(error.message || 'Error uploading file.', 'error');
+    }
+}
+
+// Clear connections database
+async function clearConnections() {
+    if (!confirm('Are you sure you want to clear your connections network? This will remove all imported contacts.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/connections/clear`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Failed to clear connections');
+        
+        showToast('Connections database cleared.', 'success');
+        await fetchConnections();
+        render();
+    } catch (error) {
+        console.error("Clear error:", error);
+        showToast('Error clearing connections.', 'error');
+    }
+}
+
+// Populate modal referrals tab
+function populateReferralsTab(job, matches) {
+    const tbody = document.getElementById('referrals-list-body');
+    const textarea = document.getElementById('referral-message-draft');
+    if (!tbody || !textarea) return;
+    
+    tbody.innerHTML = '';
+    textarea.value = '';
+    
+    matches.forEach((c, idx) => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-index', idx);
+        
+        const name = `${c.first_name} ${c.last_name}`;
+        
+        row.innerHTML = `
+            <td style="text-align: center; vertical-align: middle;">
+                <input type="radio" name="referral-select" value="${idx}" class="referrals-radio" ${idx === 0 ? 'checked' : ''}>
+            </td>
+            <td>
+                <a href="${c.url}" target="_blank" class="conn-link" onclick="event.stopPropagation();">
+                    <i class="fa-brands fa-linkedin"></i> ${name}
+                </a>
+            </td>
+            <td style="font-size: 0.8rem;">${c.position || 'N/A'}</td>
+        `;
+        
+        // Select row on click
+        row.addEventListener('click', () => {
+            const radio = row.querySelector('.referrals-radio');
+            if (radio) {
+                radio.checked = true;
+                updateSelection(idx);
+            }
+        });
+        
+        tbody.appendChild(row);
+    });
+    
+    // Helper to update selected row styling and generate message
+    function updateSelection(index) {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(r => r.classList.remove('selected'));
+        
+        const selectedRow = tbody.querySelector(`tr[data-index="${index}"]`);
+        if (selectedRow) selectedRow.classList.add('selected');
+        
+        const connection = matches[index];
+        textarea.value = generateReferralMessage(connection, job);
+    }
+    
+    // Generate draft for the first element by default
+    if (matches.length > 0) {
+        updateSelection(0);
+    }
+    
+    // Listen for radio button changes
+    tbody.querySelectorAll('.referrals-radio').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            updateSelection(parseInt(e.target.value));
+        });
+    });
+}
+
+// Generate Outreach draft text
+function generateReferralMessage(connection, job) {
+    const name = connection.first_name || 'there';
+    const myName = "Vamsi";
+    const roleTitle = job.role;
+    const company = job.company;
+    const jobUrl = job.url && !isPlaceholderUrl(job.url) ? job.url : '';
+    
+    let urlSentence = '';
+    if (jobUrl) {
+        urlSentence = ` Here is the listing for reference: ${jobUrl}\n\n`;
+    }
+    
+    return `Hi ${name},\n\nI hope you're doing well! I saw that you're working at ${company} as a ${connection.position || 'Professional'}.\n\nI'm currently looking for new opportunities and noticed an exciting opening for a "${roleTitle}" role at ${company}.${urlSentence}Given your experience there, I would love to get your perspective on the team culture and see if you might be open to referring me for this position. I'd be happy to share my resume and a brief summary of my background.\n\nLet me know if you have a few minutes to connect sometime soon. Thanks so much for your time and help!\n\nBest regards,\n${myName}`;
+}
+
+// Copy draft to clipboard
+async function copyReferralMessage() {
+    const draftTextarea = document.getElementById('referral-message-draft');
+    const copyBtn = document.getElementById('btn-copy-referral');
+    if (!draftTextarea || !draftTextarea.value) return;
+    
+    try {
+        await navigator.clipboard.writeText(draftTextarea.value);
+        const originalHtml = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        copyBtn.disabled = true;
+        setTimeout(() => {
+            copyBtn.innerHTML = originalHtml;
+            copyBtn.disabled = false;
+        }, 2000);
+        showToast('Referral draft copied to clipboard!', 'success');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        showToast('Failed to copy to clipboard.', 'error');
+    }
 }
