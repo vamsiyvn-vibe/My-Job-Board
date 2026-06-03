@@ -314,6 +314,27 @@
                                 <li>Enter your password. Within ~10 minutes, you will receive an email containing a download link for a zip archive containing <code>Connections.csv</code>.</li>
                             </ol>
                         </div>
+                        <div class="upload-mode-selector">
+                            <span class="upload-mode-label"><i class="fa-solid fa-gears"></i> Import Options:</span>
+                            <div class="upload-mode-options">
+                                <label class="mode-option-btn active">
+                                    <input type="radio" name="upload-mode" value="replace" checked>
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                    <div>
+                                        <strong>Replace existing network</strong>
+                                        <span>Overwrite all current connections</span>
+                                    </div>
+                                </label>
+                                <label class="mode-option-btn">
+                                    <input type="radio" name="upload-mode" value="append">
+                                    <i class="fa-solid fa-plus-minus"></i>
+                                    <div>
+                                        <strong>Append and merge</strong>
+                                        <span>Add new contacts without duplicates</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                         <div class="upload-dropzone" id="connections-dropzone">
                             <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
                             <p>Drag and drop your <strong>Connections.csv</strong> file here, or click to browse</p>

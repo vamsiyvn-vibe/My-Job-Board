@@ -343,6 +343,18 @@ function setupEventListeners() {
         });
     }
     
+    // Connections upload mode selection buttons toggling
+    document.querySelectorAll('.mode-option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const radio = btn.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+                document.querySelectorAll('.mode-option-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        });
+    });
+    
     if (elements.connectionsFileInput) {
         elements.connectionsFileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
@@ -1941,6 +1953,11 @@ function renderConnectionsTable() {
 async function handleConnectionsUpload(file) {
     const formData = new FormData();
     formData.append('file', file);
+    
+    // Retrieve upload mode setting (replace or append)
+    const modeSelector = document.querySelector('input[name="upload-mode"]:checked');
+    const mode = modeSelector ? modeSelector.value : 'replace';
+    formData.append('mode', mode);
     
     showToast('Uploading and parsing connections...', 'info');
     

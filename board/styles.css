@@ -2567,3 +2567,94 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.76rem;
     color: var(--text-secondary);
 }
+
+/* Upload mode options */
+.upload-mode-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.upload-mode-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.03em;
+}
+
+.upload-mode-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.mode-option-btn {
+    background-color: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    user-select: none;
+    position: relative;
+}
+
+.mode-option-btn:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.mode-option-btn input[type="radio"] {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.mode-option-btn i {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    width: 24px;
+    text-align: center;
+    transition: color var(--transition-fast);
+}
+
+.mode-option-btn div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 14px;
+}
+
+.mode-option-btn div strong {
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.mode-option-btn div span {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Active styles */
+.mode-option-btn.active {
+    border-color: var(--primary);
+    background-color: rgba(99, 102, 241, 0.06);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.05);
+}
+
+.mode-option-btn.active i {
+    color: var(--primary);
+}

@@ -1093,11 +1093,41 @@ def upload_connections():
                 "url": url
             })
             
-        save_connections(parsed_connections)
+        mode = request.form.get('mode', 'replace')
+        if mode == 'append':
+            existing = load_connections()
+            
+            # Helper to generate unique signature for deduplication
+            def get_signature(c):
+                url_clean = c.get('url', '').strip().lower()
+                if url_clean and "search/results" not in url_clean:
+                    return f"url:{url_clean}"
+                name_clean = f"{c.get('first_name','')}_{c.get('last_name','')}".strip().lower().replace(" ","")
+                comp_clean = c.get('company','').strip().lower().replace(" ","")
+                return f"info:{name_clean}@{comp_clean}"
+                
+            existing_sigs = {get_signature(x) for x in existing}
+            
+            added_count = 0
+            for new_conn in parsed_connections:
+                sig = get_signature(new_conn)
+                if sig not in existing_sigs:
+                    existing.append(new_conn)
+                    existing_sigs.add(sig)
+                    added_count += 1
+            
+            save_connections(existing)
+            message = f"Successfully appended {added_count} new connections (skipped {len(parsed_connections) - added_count} duplicates)."
+            result_connections = existing
+        else:
+            save_connections(parsed_connections)
+            message = f"Successfully replaced database with {len(parsed_connections)} connections."
+            result_connections = parsed_connections
+            
         return jsonify({
             "success": True, 
-            "message": f"Successfully parsed and saved {len(parsed_connections)} connections.",
-            "connections": parsed_connections
+            "message": message,
+            "connections": result_connections
         })
     except Exception as e:
         traceback.print_exc()
