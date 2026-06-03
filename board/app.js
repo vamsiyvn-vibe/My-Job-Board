@@ -1618,6 +1618,7 @@ async function openJobDetails(job) {
     }
 
     // Toggle Referrals Tab display: only show if in Consideration Set and has matching connections
+    const matches = findCompanyConnections(job.company);
     const modalTabReferrals = document.getElementById('modal-tab-referrals');
     if (job.status === 'Consideration' && matches.length > 0) {
         if (modalTabReferrals) modalTabReferrals.style.display = 'block';
