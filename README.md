@@ -1,6 +1,6 @@
-# Project: 2026 Job Search
+# My Job Board
 
-This folder contains all active documents, interview preparations, and reference materials for your 2026 job search.
+This repository contains the interactive Job Leads Board and background sync crawler for tracking your 2026 job search leads.
 
 ## 🔗 Master Documents & Links
 *Use this section to keep track of your core cloud documents and profiles. Edit this file to add your URLs.*
@@ -14,19 +14,11 @@ This folder contains all active documents, interview preparations, and reference
 ---
 
 ## 📊 Application Tracking & Tools
-*   **Application Tracker Spreadsheet:** [Job_Applications_Tracker.xlsx](file:///G:/My%20Drive/.Agents/1_Projects/2026%20Job%20Search/Job_Applications_Tracker.xlsx) *(Opens directly in Google Sheets when double-clicked in Google Drive)*
 *   **Job Leads Tracker:** [Job_Leads_Tracker.xlsx](file:///G:/My%20Drive/.Agents/1_Projects/2026%20Job%20Search/Job_Leads_Tracker.xlsx) *(Categorized by cohort: Mag 7, AI Labs, High-Growth Startups, Non-Mag 7)*
-
----
-
-## 📂 Active Applications (Subprojects)
-*Each company application is treated as a subproject folder containing curated preparation resources and specific resumes.*
-
-*   📁 **[Netflix PM Application Prep](file:///G:/My%20Drive/.Agents/1_Projects/2026%20Job%20Search/Netflix/README.md)**
 
 ---
 
 ## 📝 Todo / Action Items
 - [x] Add links to Google Docs and online profiles in the section above.
 - [x] Set up the job application tracker.
-- [ ] Draft base cover letter templates in `3_Resources/Cover Letters/`.
+- [ ] Draft base cover letter templates.
