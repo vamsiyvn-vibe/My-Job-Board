@@ -110,173 +110,178 @@ def load_jobs_from_excel():
 INTERVIEW_INSIGHTS = {
     "google": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "Behavioral alignment, resume walkthrough, and verification of PM qualifications."},
-            {"title": "2. Product Design / Product Sense (45m)", "desc": "Designing a new product or improving an existing one. Focus on user-centric problem solving, clear frameworks (CIRCLES), and creative prioritization. (e.g., 'Design an alarm clock for the blind')."},
-            {"title": "3. Analytical / Execution (45m)", "desc": "Metrics definition, root cause analysis of metric drops, prioritization under constraints, and estimation/market sizing. (e.g., 'How would you measure success of YouTube Shorts?')."},
-            {"title": "4. Product Strategy (45m)", "desc": "High-level strategic questions focusing on market entrance, business models, monetization, and competitive dynamics. (e.g., 'Should Google acquire Zoom?')."},
-            {"title": "5. Googlyness & Leadership (45m)", "desc": "Behavioral round assessing conflict resolution, cross-functional collaboration, ethical standards, and cultural alignment."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Logistical check, resume walkthrough, and introductory behavioral screening questions."},
+            {"title": "2. Product Sense Screen (45m)", "desc": "Product case interview led by a senior PM. Focuses on user-centric design, creative prioritization, and structured problem-solving."},
+            {"title": "3. Final Onsite Loop (4-5 rounds)", "desc": "Rounds covering Product Design (user-first case), Analytical Thinking (metric definition/diagnostic), Product Strategy (long-term vision/monetization), and Leadership/Googleyness."}
         ],
         "tips": [
-            "Use the CIRCLES method for product design rounds, but customize it so it doesn't sound robotic.",
-            "Always align recommendations with Google's core mission to organize the world's information and make it universally accessible.",
-            "Focus on scale: solutions must work for billions of users worldwide."
+            "Use design frameworks like CIRCLES but tailor them dynamically to avoid sounding robotic or overly template-driven.",
+            "Align all product recommendations with Google's core mission to make information universally accessible and useful.",
+            "Think about extreme scale. Be ready to explain how solutions adapt to support billions of diverse daily users."
         ]
     },
     "microsoft": {
         "stages": [
-            {"title": "1. Initial Phone Screen (45m)", "desc": "PM or Hiring Manager screen checking product design basics and resume fit."},
-            {"title": "2. Technical / System Design (45m)", "desc": "Probing technical fluency, database design, API design, or Azure architecture depending on the group."},
-            {"title": "3. Product Design & Strategy (45m)", "desc": "Focus on enterprise scaling, SaaS mechanics (Office 365, Teams), or developer platforms."},
-            {"title": "4. As Appropriate (AA) Interview (45m)", "desc": "Final round with a Partner PM Director who evaluates leadership, long-term vision, and capability to work across massive cross-functional boundaries."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Review of background, general motivation, and basic behavioral alignment check."},
+            {"title": "2. Hiring Manager Screen (45m)", "desc": "Conversational screen evaluating product sense, role-specific strategy, and team cultural fit."},
+            {"title": "3. Onsite Loop (3-6 rounds)", "desc": "Deep dive interviews covering Product Design & Strategy, Execution & Prioritization (data-driven decisions), and Behavioral Scenarios (collaboration/growth mindset)."}
         ],
         "tips": [
-            "Focus on enterprise customer empathy: understand security, data compliance, and migration paths.",
-            "Demonstrate growth mindset (a core Microsoft culture value).",
-            "Be structured: break down complex, multi-stakeholder problems into clear phases."
+            "Demonstrate a growth mindset (a core Microsoft value) by discussing how you learn from failures and feedback.",
+            "Focus on enterprise customer empathy. Understand multi-stakeholder needs, security compliance, and migration paths.",
+            "Be highly structured: break complex, ambiguous enterprise/platform problems into logical phases."
         ]
     },
     "apple": {
         "stages": [
-            {"title": "1. Recruiter & Hiring Manager Screens", "desc": "1-2 rounds to assess general background and specific team alignment. Highly team-dependent."},
-            {"title": "2. Case Presentation / Panel (60m)", "desc": "Presenting a deep-dive case study or past product launch to a panel of 3-5 PMs/Engineers."},
-            {"title": "3. Onsite Loop (5-6 rounds)", "desc": "Intense individual rounds with engineering leads, hardware managers, design leads, and PM Directors. Focuses on extreme detail, quality, design sensitivity, and collaboration."}
+            {"title": "1. Recruiter Screen", "desc": "Initial logistics check, review of background, and compensation expectations."},
+            {"title": "2. Hiring Manager Round", "desc": "Introductory conversation focusing on experience, team fit, and the crucial 'Why Apple?' assessment."},
+            {"title": "3. Screening Rounds", "desc": "1-2 rounds focusing on product sense (situational design) and technical/domain depth depending on the team's area."},
+            {"title": "4. Onsite Loop (4-5 rounds)", "desc": "Back-to-back rounds covering Apple-specific Product Sense & Strategy, Technical/Architectural Depth (trade-offs), and Culture/Behavioral alignment."}
         ],
         "tips": [
-            "Apple is highly team-specific. Make sure you understand the exact product line (e.g. Health, Map, Apple Pay, iOS Core) you are interviewing for.",
-            "Show extreme user empathy and a taste for simple, elegant UI/UX design.",
-            "Prioritize privacy and security in every product feature discussion."
+            "Prepare a highly authentic answer for 'Why Apple?' that aligns with their design philosophy, simplicity, and privacy values.",
+            "Apple's PM loop is highly decentralized. Research your specific team's product lines and domain challenges deeply.",
+            "Incorporate Apple's principles into your cases: prioritize user simplicity, privacy protection, and ecosystem continuity."
         ]
     },
     "amazon": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "Overview of background, resume scan, and general alignment with role requirements."},
-            {"title": "2. Phone / Video Screen (60m)", "desc": "1-2 rounds with PMs focusing on behavioral scenarios (Leadership Principles) and product design case questions."},
-            {"title": "3. Onsite Loop (5-6 rounds)", "desc": "Intense rounds focusing on Amazon Leadership Principles (Customer Obsession, Ownership, Dive Deep, Deliver Results). Typically includes a writing exercise (6-pager/PRFAQ critique) and a Product Design/Execution case."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Basic alignment on background, logistics, and resume verification."},
+            {"title": "2. Written Exercise (1-2 pages)", "desc": "Take-home written response to a behavioral prompt, structured in narrative STAR format, submitted within 48 hours."},
+            {"title": "3. Phone Screen (60m)", "desc": "1-2 video rounds with PMs focusing on behavioral scenarios (Leadership Principles) and product design case questions."},
+            {"title": "4. Final Onsite Loop (4-5 rounds)", "desc": "Rounds focusing heavily (80%) on Amazon's 16 Leadership Principles using STAR stories, with remaining focus on analytical design/execution cases."}
         ],
         "tips": [
-            "Prepare 10-12 STAR stories mapped to Amazon's Leadership Principles. Every single question is evaluated against them.",
-            "Understand their document culture. Be comfortable discussing how you write product specification docs, PRFAQs, or 6-pagers.",
-            "Amazon PMs are expected to be highly analytical. Be ready to drill down into metrics, costs, and customer funnels."
+            "Prepare 10-12 STAR stories mapped directly to Amazon's Leadership Principles, as every interviewer evaluates against them.",
+            "Understand Amazon's document-driven culture. Focus on how you write specifications, PRFAQs, or narrative memos.",
+            "Be highly quantitative: structure answers with data, metrics, and clear trade-off calculations."
         ]
     },
     "nvidia": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "General background and salary expectations checking. Focus on technical background."},
-            {"title": "2. Technical Hiring Manager Screen (60m)", "desc": "Interview with the PM lead focusing on GPU architecture, machine learning system workflows, software developer kits (e.g. CUDA, TensorRT), or specific vertical applications."},
-            {"title": "3. Onsite Panel (4-5 rounds)", "desc": "Deep technical system design, developer ecosystem strategy, cross-functional execution with HW/SW engineers, and product roadmap prioritization."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Initial screening on technical background, career goals, and compensation expectations."},
+            {"title": "2. Hiring Manager Screen", "desc": "Deep technical and domain-specific discussion with the PM lead focusing on past projects and team-specific tech stack."},
+            {"title": "3. Final Onsite Loop (3-6 rounds)", "desc": "Conversational rounds with PMs and engineering stakeholders focusing on real-world engineering trade-offs, developer ecosystems, and technical depth."}
         ],
         "tips": [
-            "Possess a strong technical baseline: understand GPU virtualization, developer tooling, parallel compute, or deep learning libraries.",
-            "Highlight developer empathy: Nvidia products are built for software engineers, research scientists, and system architects.",
-            "Demonstrate a solid understanding of the AI compute hardware stack."
+            "Possess a strong technical baseline. Understand GPU computing, developer tooling, parallel compute, or machine learning infrastructure.",
+            "Highlight developer empathy. Nvidia PMs build products for developers, researchers, and system architects.",
+            "Focus on behavioral history over generic design cases. Be ready to explain past project tradeoffs in detailed technical terms."
         ]
     },
     "meta": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "Review of PM background, interest in Meta, and mapping to appropriate PM level."},
-            {"title": "2. Product Sense Screen (45m)", "desc": "First round case check: product design, user segmentations, prioritizations, and success metrics definition."},
-            {"title": "3. Onsite Loop (4-5 rounds)", "desc": "Includes Product Sense (product design), Execution (metrics, analytics, debugging, prioritization), Leadership & Drive (behavioral, cross-functional collaboration, challenges), and Product Strategy (long-term tech/business vision)."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "General background scan, interest in Meta, and leveling mapping."},
+            {"title": "2. Product Sense Screen (45m)", "desc": "Initial case screening evaluating product design, user segmentations, feature prioritization, and success metrics."},
+            {"title": "3. Onsite Loop (4-5 rounds)", "desc": "Rounds covering Product Sense (user-first design), Analytical Thinking (execution metrics, bug triage, trade-offs), and Leadership & Drive (behavioral alignment)."}
         ],
         "tips": [
-            "Execution is heavily focused on data: practice metrics frameworks, handling bug triage, and trade-off metrics (e.g., user growth vs retention).",
-            "Align strategy with Meta's pillars (connecting people, developer tools, open-source AI, VR/AR).",
-            "Be structured and decisive: state your frameworks and stick to them."
+            "For Analytical Thinking (Execution), focus heavily on data: practice metric frameworks, debugging, and counter-metric trade-offs.",
+            "Structure all product sense cases: identify target user segments, define specific pain points, prioritize features, and define success metrics.",
+            "Align recommendations with Meta's strategic pillars (e.g. connecting people, creator ecosystem, open-source AI, VR/AR)."
         ]
     },
     "tesla": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "Basic alignment on background, interest in Tesla's mission, and salary expectations."},
-            {"title": "2. Technical & PM Screen (45m)", "desc": "Screening with hiring manager, focusing on physical engineering processes, software-hardware integrations, supply chain constraints, or autonomy software."},
-            {"title": "3. Onsite Loop & Presentation (5-6 rounds)", "desc": "Deep technical loops with hardware, manufacturing, software, and PM leads. Usually includes a 45-minute technical presentation on a past complex project you shipped."}
+            {"title": "1. Recruiter Screen (20-60m)", "desc": "Alignment on logistics, interest in Tesla's mission, and general background check."},
+            {"title": "2. Hiring Manager Screen", "desc": "Domain discussion evaluating hardware-software integration, manufacturing constraints, autonomy software, and team-specific fit."},
+            {"title": "3. Onsite Loop & Presentation (5-6 rounds)", "desc": "Technical rounds with HW/SW engineering and PM leads, featuring a 45-minute technical presentation on a past complex project."}
         ],
         "tips": [
-            "Demonstrate a high tolerance for chaos and quick decision cycles. Tesla operates at extreme speeds.",
-            "Be highly technical: understand physical architectures, manufacturing constraints, code optimization, or machine learning pipelines (e.g., FSD occupancy networks).",
-            "Show extreme alignment with Tesla's mission of accelerating sustainable transition."
+            "Demonstrate a high tolerance for ambiguity, speed, and shifting priorities. Tesla values quick decision cycles.",
+            "Show extreme alignment with Tesla's mission: accelerating the transition to sustainable energy.",
+            "Be highly technical: understand physical architectures, code optimization, or machine learning pipelines (e.g. FSD networks)."
         ]
     },
     "netflix": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "Core values screening. Extremely focused on whether you fit the 'Freedom and Responsibility' culture."},
-            {"title": "2. Initial Technical / Product Screen (45m)", "desc": "1-2 video calls with PMs focusing on product intuition, strategic thinking, and telemetry/testing standards."},
-            {"title": "3. Onsite Panel (4-5 rounds)", "desc": "Interviews with Product Directors, VPs of Product, engineering leads, and design heads. Highly collaborative case-oriented discussions, probing metrics, prioritization, and cultural alignment (Keeper Test questions)."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Core screening checking alignment with Netflix's unique culture and values."},
+            {"title": "2. Hiring Manager Screen", "desc": "Product discussion evaluating product sense, technical intuition, and initial culture fit."},
+            {"title": "3. Culture Fit Screen (45m)", "desc": "Structured conversation with an HR Business Partner focusing on the Netflix Culture Memo values."},
+            {"title": "4. Onsite Loop (4-5 rounds)", "desc": "Rounds with PMs, engineering leads, and design heads. Tests collaboration, conflict resolution, A/B testing standards, and metrics."}
         ],
         "tips": [
-            "Memorize and internalize the Netflix Culture Memo. Every interviewer will evaluate you against it.",
-            "Expect a strong emphasis on data-driven decision-making, particularly A/B testing and cohort metrics.",
-            "Netflix values 'Stunners'—PMs who can operate with near-absolute autonomy without close supervision."
+            "Memorize and internalize the Netflix Culture Memo. Expect interviewers to evaluate you against 'Freedom and Responsibility' values.",
+            "Show strong familiarity with data-driven decision-making, specifically A/B testing, cohort metrics, and product instrumentation.",
+            "Demonstrate absolute autonomy. Netflix values PMs who operate independently as high-performing 'stunners' without hand-holding."
         ]
     },
     "openai": {
         "stages": [
-            {"title": "1. Recruiter Sync (30m)", "desc": "Introductory call on background, interest in artificial intelligence, and alignment with safety mission."},
-            {"title": "2. Technical Case Study & API Round (60m)", "desc": "Probing your technical understanding of large language models, compute constraints, prompt engineering, and pricing APIs. Usually involves a technical system walkthrough."},
-            {"title": "3. Onsite Loop (4 rounds)", "desc": "Rounds with ML Research Engineers, PM Directors, and Product designers. Probing product intuition, engineering collaboration, AI safety alignment, and developer ecosystem strategy."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Initial sync on background, interest in AI, and alignment with safety mission."},
+            {"title": "2. Hiring Manager Screen (1-2 rounds)", "desc": "Conversations focusing on products you shipped, technical capabilities, and strategic thinking."},
+            {"title": "3. Take-Home / Case Assessment", "desc": "Skills-based assessment requiring candidates to develop a growth strategy or turn a vague prompt into a product spec deck."},
+            {"title": "4. Onsite Loop (4-6 rounds)", "desc": "Highly ambiguous rounds covering Product Sense (vague single-sentence prompts), Execution, GTM Strategy, engineering collaboration, and safety/alignment."}
         ],
         "tips": [
-            "Possess a strong technical baseline: understand transformers, context windows, tokens, latency, fine-tuning vs RAG.",
-            "Prepare for developer-focused product questions (APIs, developer platforms, developer experience).",
-            "Demonstrate a high priority for safety, alignment, and responsible product deployment."
+            "Practice handling high ambiguity. Prepare to impose structure on abstract, single-sentence prompts with minimal guidance.",
+            "Have deep AI/ML literacy: understand transformer architectures, context windows, tokens, latency, fine-tuning, and APIs.",
+            "Highlight safety and ethical deployment. OpenAI evaluates candidates on their commitment to responsible AI development."
         ]
     },
     "anthropic": {
         "stages": [
-            {"title": "1. Recruiter Call (30m)", "desc": "Alignment on background, interest in safety-oriented AI, and values."},
-            {"title": "2. Technical Spec Exercise (60m)", "desc": "Critique or design a product specification for an AI feature. Focuses on system architecture, safety boundaries, latency, and user interface design."},
-            {"title": "3. Virtual Onsite Loop (4 rounds)", "desc": "Interviews testing engineering collaboration, AI safety principles, product strategy, and organizational values."}
+            {"title": "1. Recruiter Screen (15-45m)", "desc": "Logistics check and screening on motivation, AI safety interest, and alignment with Anthropic's research philosophy."},
+            {"title": "2. Hiring Manager Screen (45-60m)", "desc": "Discussion evaluating product judgment, cross-functional collaboration, and AI/ML domain understanding."},
+            {"title": "3. Take-Home / Case Study", "desc": "Practical specification task requiring candidates to draft a spec for an AI feature, balancing UX with safety boundaries."},
+            {"title": "4. Final Onsite Loop (3-5 rounds)", "desc": "Rounds focusing on Product Sense, Execution, and a dedicated, challenging Constitutional AI ethics and safety alignment round."}
         ],
         "tips": [
-            "Read Anthropic's research blogs on Constitutional AI, alignment, and model safety.",
-            "Be prepared to answer how to balance commercial pressure to deploy features with security and safety protocols.",
-            "Demonstrate familiarity with Claude and developer tools."
+            "Study Anthropic's research papers (Constitutional AI, Model Alignment) to understand their safety-first product decisions.",
+            "Treat the safety and ethics round as a hard technical interview; practice reasoning through complex AI deployment tradeoffs.",
+            "Demonstrate developer empathy and familiarity with Claude, API developer tools, and model latency constraints."
         ]
     },
     "huggingface": {
         "stages": [
-            {"title": "1. Introductory Sync (30m)", "desc": "Aligning on open-source philosophy, ML background, and developer relations."},
-            {"title": "2. Open-Source Product Spec (60m)", "desc": "Case round reviewing how you would drive hub integrations, Spaces usage, or API monetization while keeping the core platform open-source friendly."},
-            {"title": "3. Engineering & Community Panel (45m)", "desc": "Round evaluating collaboration with open-source engineering teams and external developers."}
+            {"title": "1. Recruiter/Hiring Manager Screen", "desc": "Conversational screen on background, open-source alignment, and ML familiarity."},
+            {"title": "2. Conversations (2-3 rounds)", "desc": "Interviews with engineers and product leads exploring collaborative problem-solving and open-source contribution patterns."},
+            {"title": "3. Role-Specific Take-Home/Assessment", "desc": "Practical exercise designing a hub integration, Spaces monetization, or API packaging strategy."},
+            {"title": "4. Final Discussions & Debrief", "desc": "Final round with product leadership focusing on open-source community value vs commercial SaaS monetization."}
         ],
         "tips": [
-            "Be active in or highly familiar with the Hugging Face Hub ecosystem.",
-            "Show how you balance developer developer-centric community goals with enterprise SaaS monetization.",
-            "Emphasize transparency and open-source values."
+            "Demonstrate a deep commitment to the open-source community and transparent development practices.",
+            "Be active in or highly familiar with the Hugging Face Hub (models, datasets, Spaces, model hubs).",
+            "Be ready to explain how to balance developer-centric open-source goodwill with enterprise monetization models."
         ]
     },
     "datadog": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "Technical screen assessing familiarity with Cloud, Devops, and monitoring landscapes."},
-            {"title": "2. Telemetry Case Study (60m)", "desc": "Designing a dashboard, alert rule, or integration for cloud services. Focus on data modeling and developer personas."},
-            {"title": "3. Onsite Panel (4 rounds)", "desc": "System design, PM case study, engineering collab, and executive alignment."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Technical screen focusing on DevOps, cloud architectures, and observability landscape."},
+            {"title": "2. Hiring Manager Screen (60m)", "desc": "Observability/telemetry case study focusing on developer personas and system dashboard designs."},
+            {"title": "3. Onsite Panel (3-4 rounds)", "desc": "Rounds covering Observability System Design, Cloud APM/Logging Product Sense, Analytical Metrics (churn/adoption), and Behavioral alignment."}
         ],
         "tips": [
-            "Understand DevOps pipelines, APM, logging, metrics, traces, and Kubernetes/Cloud architectures.",
-            "Target highly technical user personas (SREs, System Architects, Developers).",
-            "Focus on execution: how to roll out features in short, iterative cycles."
+            "Understand highly technical developer personas (SREs, platform engineers, cloud architects) and their debugging workflows.",
+            "Be fluent in observability concepts: APM, logging, metrics, tracing, distributed systems, and cloud-native Kubernetes environments.",
+            "Focus on execution: showcase how you prioritize features and deliver value in short, iterative product cycles."
         ]
     },
     "cockroachlabs": {
         "stages": [
-            {"title": "1. Initial Screen (30m)", "desc": "Overview of database market experience, career goals, and basic technical screen."},
-            {"title": "2. Database Case Study (60m)", "desc": "Designing a feature or SaaS pricing model for a distributed database. Probing system design and developer experience (DX)."},
-            {"title": "3. Onsite Loop (4 rounds)", "desc": "Technical/DB architecture sync, PM product design round, collaborative planning round, and cultural values."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "Initial scan checking database market experience and career alignment."},
+            {"title": "2. Technical Work Experience Round", "desc": "Detailed walk-through of a complex product/feature you shipped, explaining architecture, trade-offs, and engineering negotiation."},
+            {"title": "3. Product Positioning Exercise", "desc": "Exercise creating a B2B product messaging framework (elevator pitch, pillars, positioning) for a database feature."},
+            {"title": "4. Onsite Panel (4-5 rounds)", "desc": "Exercise-based rounds evaluating developer experience (DX), distributed system trades, planning, and cultural values."}
         ],
         "tips": [
-            "Familiarize yourself with CockroachDB architecture (RAFT consensus, distributed transactions, SQL parsing).",
-            "Focus on developer experience (DX) and reliability constraints (multi-region latency, zero downtime).",
-            "Be structured and precise in analytical answers."
+            "Review Cockroach Labs' open-sourced interview templates on GitHub to understand their exercise-based philosophy.",
+            "Focus on B2B developer experience (DX) and technical scaling constraints (distributed consensus, latency, zero downtime).",
+            "Be transparent and logical. They value clear problem-solving processes and structured thinking over guessing."
         ]
     },
     "disney": {
         "stages": [
-            {"title": "1. Recruiter Screen (30m)", "desc": "General background review, salary alignment, and interest in Disney Streaming Services."},
-            {"title": "2. PM Interview (60m)", "desc": "Product case study on video player features, streaming quality of service, content discovery algorithms, or app store billing integrations."},
-            {"title": "3. Panel Interview (3 rounds)", "desc": "Consumer metrics, cross-functional collaboration with creative teams, and technical feasibility."}
+            {"title": "1. Recruiter Screen (30m)", "desc": "General background alignment check, streaming/parks interest, and 'Why Disney?' scan."},
+            {"title": "2. Hiring Manager Screen", "desc": "Discussion on PM methodologies, stakeholder management, and cross-functional shipping experience."},
+            {"title": "3. Cross-Functional Panel (3-4 rounds)", "desc": "Interviews with engineering, design, and business leads evaluating collaboration, consumer product sense, and metrics (e.g. churn, CAC, watch-time)."},
+            {"title": "4. Final/Director Round", "desc": "Conversations with senior directors evaluating long-term strategic vision, brand alignment, and leadership potential."}
         ],
         "tips": [
-            "Understand core streaming metrics: subscriber growth, acquisition cost (CAC), churn, engagement, watch-time.",
-            "Be prepared to speak about consumer platforms (Smart TVs, mobile, web, game consoles) and video encoding fundamentals.",
-            "Emphasize a customer-first approach to personalization and content recommendations."
+            "Articulate a clear, authentic passion for Disney's brand, storytelling, and user experiences across physical or streaming platforms.",
+            "Know streaming metrics (CAC, churn, LTV, engagement, watch-time) and how technical features (player optimization, billing) affect them.",
+            "Structure behavioral responses using the STAR method, emphasizing your ability to translate complex details for diverse creative/business stakeholders."
         ]
     }
 }
