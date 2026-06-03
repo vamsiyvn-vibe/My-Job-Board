@@ -2474,3 +2474,9 @@ h1, h2, h3, h4, h5, h6 {
 #referral-message-draft:focus {
     outline: none;
 }
+
+.btn-icon.action-details:hover {
+    color: var(--primary);
+    border-color: rgba(99, 102, 241, 0.35);
+    background-color: rgba(99, 102, 241, 0.15);
+}

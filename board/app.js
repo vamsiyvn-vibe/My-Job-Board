@@ -1185,8 +1185,8 @@ function renderGrid(jobs) {
     jobs.forEach(job => {
         const card = document.createElement('div');
         card.className = `job-card status-${job.status.toLowerCase()}`;
-        card.addEventListener('dblclick', () => openJobDetails(job));
-        card.title = "Double-click to view details & tracking settings";
+        card.addEventListener('click', () => openJobDetails(job));
+        card.title = "Click to view details & tracking settings";
 
         const cohortClass = getCohortClass(job.cohort);
         let actionsHtml = getActionsHtml(job);
@@ -1365,8 +1365,8 @@ function renderList(jobs) {
     
     jobs.forEach(job => {
         const row = document.createElement('tr');
-        row.addEventListener('dblclick', () => openJobDetails(job));
-        row.title = "Double-click to view details & tracking settings";
+        row.addEventListener('click', () => openJobDetails(job));
+        row.title = "Click to view details & tracking settings";
         
         const cohortClass = getCohortClass(job.cohort);
         let actionsHtml = getActionsHtml(job);
@@ -1495,8 +1495,15 @@ function renderList(jobs) {
 
 // Generate action buttons
 function getActionsHtml(job) {
+    const detailsBtn = `
+        <button class="btn-icon action-details" title="View Details" onclick="event.stopPropagation(); openJobDetailsById(${job.id})">
+            <i class="fa-solid fa-circle-info"></i>
+        </button>
+    `;
+    
     if (job.status === 'Lead') {
         return `
+            ${detailsBtn}
             <button class="btn-icon action-star" title="Add to Consideration" onclick="event.stopPropagation(); updateJobStatus(${job.id}, 'Consideration')">
                 <i class="fa-solid fa-star"></i>
             </button>
@@ -1506,6 +1513,7 @@ function getActionsHtml(job) {
         `;
     } else if (job.status === 'Consideration') {
         return `
+            ${detailsBtn}
             <button class="btn-icon action-restore" title="Remove back to Leads" onclick="event.stopPropagation(); updateJobStatus(${job.id}, 'Lead')">
                 <i class="fa-solid fa-undo"></i>
             </button>
@@ -1515,6 +1523,7 @@ function getActionsHtml(job) {
         `;
     } else if (job.status === 'Archived') {
         return `
+            ${detailsBtn}
             <button class="btn-icon action-restore" title="Restore to Leads" onclick="event.stopPropagation(); updateJobStatus(${job.id}, 'Lead')">
                 <i class="fa-solid fa-rotate-left"></i>
             </button>
@@ -2078,3 +2087,9 @@ async function copyReferralMessage() {
         showToast('Failed to copy to clipboard.', 'error');
     }
 }
+
+// Global helper to open job details by ID from string attributes
+window.openJobDetailsById = function(id) {
+    const job = state.allJobs.find(j => j.id === id);
+    if (job) openJobDetails(job);
+};
