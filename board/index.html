@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Job Board - Lead Tracker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-briefcase brand-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>My Job Board</h1>
+                    <span>Lead Tracker</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-status="Lead">
+                    <i class="fa-solid fa-list-ul"></i>
+                    <span>New Leads</span>
+                    <span class="badge" id="badge-leads">0</span>
+                </button>
+                <button class="nav-item" data-status="Consideration">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Considered</span>
+                    <span class="badge" id="badge-considered">0</span>
+                </button>
+                <button class="nav-item" data-status="Archived">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Archived</span>
+                    <span class="badge" id="badge-archived">0</span>
+                </button>
+                <button class="nav-item" data-status="All">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span>All Job Leads</span>
+                    <span class="badge" id="badge-all">0</span>
+                </button>
+                <button class="nav-item" data-status="Criteria">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Search Criteria</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="scan-info">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <div>
+                        <p class="scan-label">Last Scanned</p>
+                        <p class="scan-time" id="last-scanned-time">Loading...</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="btn-scan">
+                    <i class="fa-solid fa-arrows-rotate" id="scan-icon"></i>
+                    <span>Run Daily Scan</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="header">
+                <div class="header-title">
+                    <h2 id="view-title">New Leads</h2>
+                    <p id="view-desc">Review your daily crawled job openings and manage your pipeline.</p>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="stats-panel" id="header-stats">
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-total">0</span>
+                        <span class="stat-label">Total Leads</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-conversion">0%</span>
+                        <span class="stat-label">Considered Rate</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Background Sync Banner -->
+            <div class="sync-banner" id="sync-banner" style="display: none;">
+                <i class="fa-solid fa-spinner fa-spin sync-icon"></i>
+                <div class="sync-banner-text">
+                    <strong>Updating listings in background...</strong>
+                    <span>Prior cached leads are displayed below. The board will refresh once completed.</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Controls (Hidden on Criteria Tab) -->
+            <div id="dashboard-controls">
+                <!-- Filter Controls -->
+                <section class="controls-section">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Search roles...">
+                        <button class="clear-search" id="clear-search" style="display: none;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="filters-row">
+                        <!-- Company Filter -->
+                        <div class="select-wrapper">
+                            <i class="fa-solid fa-building select-icon"></i>
+                            <select id="company-filter" class="filter-select">
+                                <option value="all">All Companies</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Role Type Filter -->
+                        <div class="select-wrapper">
+                            <i class="fa-solid fa-user-tag select-icon"></i>
+                            <select id="role-filter" class="filter-select">
+                                <option value="all">All Role Levels</option>
+                                <option value="Senior">Senior PM</option>
+                                <option value="Principal">Principal PM</option>
+                                <option value="Staff">Staff PM</option>
+                                <option value="Director">Director of Product</option>
+                                <option value="VP">VP of Product</option>
+                                <option value="Other">Other PM Roles</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Compensation Filter -->
+                        <div class="select-wrapper">
+                            <i class="fa-solid fa-money-bill-wave select-icon"></i>
+                            <select id="salary-filter" class="filter-select">
+                                <option value="all">Any Compensation</option>
+                                <option value="100k">Min $100k+</option>
+                                <option value="150k">Min $150k+</option>
+                                <option value="200k">Min $200k+</option>
+                                <option value="250k">Min $250k+</option>
+                                <option value="300k">Min $300k+</option>
+                                <option value="has_salary">With Salary Only</option>
+                            </select>
+                        </div>
+                        
+                        <!-- View Toggle -->
+                        <div class="view-toggle">
+                            <button class="toggle-btn active" id="view-cards-btn" title="Grid View">
+                                <i class="fa-solid fa-grip"></i>
+                            </button>
+                            <button class="toggle-btn" id="view-list-btn" title="List View">
+                                <i class="fa-solid fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cohort Filter Bar -->
+                <section class="cohort-section">
+                    <div class="filter-group">
+                        <span class="filter-label"><i class="fa-solid fa-layer-group"></i> Cohort:</span>
+                        <div class="filter-pills" id="cohort-filters">
+                            <button class="pill active" data-cohort="all">All</button>
+                            <button class="pill" data-cohort="Mag 7">Mag 7</button>
+                            <button class="pill" data-cohort="AI Labs">AI Labs</button>
+                            <button class="pill" data-cohort="High-Growth Startups">Startups</button>
+                            <button class="pill" data-cohort="Non-Mag 7">Non-Mag 7</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Jobs List/Grid Container -->
+            <section class="jobs-section" id="jobs-container-sec">
+                <div class="loading-state" id="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading your job board leads...</p>
+                </div>
+
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <i class="fa-solid fa-folder-open empty-icon"></i>
+                    <h3>No jobs found</h3>
+                    <p>Try adjusting filters or search terms, or run a new scan to fetch latest leads.</p>
+                </div>
+
+                <!-- Cards Grid Layout -->
+                <div class="jobs-grid" id="jobs-grid" style="display: none;">
+                    <!-- Job Cards are injected here -->
+                </div>
+
+                <!-- Sleek List Layout -->
+                <div class="jobs-list-wrapper" id="jobs-list-wrapper" style="display: none;">
+                    <table class="jobs-table">
+                        <thead>
+                            <tr>
+                                <th>Role Title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Cohort</th>
+                                <th>Date Added</th>
+                                <th style="text-align: right; padding-right: 24px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobs-list-body">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Monitored Portals (Manual Check Section) -->
+                <div class="portals-section-wrapper" id="portals-section-wrapper" style="display: none;">
+                    <div class="portals-section-header">
+                        <h3><i class="fa-solid fa-circle-nodes"></i> Monitored Careers Portals (Manual Check)</h3>
+                        <p>These target companies have API restrictions or Cloudflare blocks. Check their generic search boards directly.</p>
+                    </div>
+                    <div class="portals-grid" id="portals-grid">
+                        <!-- Portals cards injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search Criteria View Panel -->
+            <section class="criteria-panel" id="criteria-section" style="display: none;">
+                <div class="criteria-grid">
+                    
+                    <!-- Unified Search & Company Target Boards Configuration -->
+                    <div class="glass-panel search-config-widget" style="width: 100%;">
+                        <div class="panel-card-header">
+                            <h3 class="panel-section-title"><i class="fa-solid fa-sliders"></i> Job Search & Company Board Feeds Configuration</h3>
+                            <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                                <button class="btn btn-outline btn-sm" id="btn-show-add-co" type="button">
+                                    <i class="fa-solid fa-plus"></i> Add Company
+                                </button>
+                                <button type="button" id="btn-save-criteria" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save & Run Crawler
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <form id="search-criteria-form">
+                            <!-- Dual column inputs at the top -->
+                            <div class="criteria-top-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px;">
+                                <!-- Locations -->
+                                <div class="form-group">
+                                    <label for="criteria-locations" style="font-weight: 600; color: var(--text-primary);">Locations (comma separated)</label>
+                                    <input type="text" id="criteria-locations" placeholder="e.g. New York, NYC, Remote">
+                                    <span class="input-tip">Jobs whose locations contain any of these keywords will match.</span>
+                                </div>
+                                
+                                <!-- Role Title Keywords -->
+                                <div class="form-group">
+                                    <label for="criteria-keywords" style="font-weight: 600; color: var(--text-primary);">Title Core Keywords (comma separated)</label>
+                                    <input type="text" id="criteria-keywords" placeholder="e.g. Product Manager, Product Management">
+                                    <span class="input-tip">Job titles must contain at least one of these primary matches.</span>
+                                </div>
+                            </div>
+
+                            <!-- Monitored Companies and Specific Target levels section -->
+                            <div class="companies-section" style="margin-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 24px;">
+                                <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-building-circle-check" style="color: var(--primary);"></i> Tracked Company Board Feeds & Specific Target Levels
+                                </h4>
+                                <div class="companies-table-wrapper">
+                                    <table class="companies-table" style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr>
+                                                <th class="sortable-company-th" data-col="company" style="text-align: left; padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Company <span class="sort-indicator" style="font-size: 0.8rem; font-family: monospace;"></span></th>
+                                                <th class="sortable-company-th" data-col="cohort" style="text-align: left; padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Cohort <span class="sort-indicator" style="font-size: 0.8rem; font-family: monospace;"></span></th>
+                                                <th class="sortable-company-th" data-col="scraped_capability" style="text-align: left; padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;">Jobs Scraped <span class="sort-indicator" style="font-size: 0.8rem; font-family: monospace;"></span></th>
+                                                <th class="sortable-company-th" data-col="scraped_count" style="text-align: left; padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none; width: 110px;"># Scraped <span class="sort-indicator" style="font-size: 0.8rem; font-family: monospace;"></span></th>
+                                                <th style="text-align: left; padding: 12px 16px; font-weight: 600;">Target Role Levels</th>
+                                                <th style="text-align: right; padding: 12px 16px; font-weight: 600; width: 100px; padding-right: 24px;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="companies-list-body">
+                                            <!-- Companies rows will go here dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Company Add Dialog/Modal -->
+    <div class="modal-overlay" id="add-company-modal">
+        <div class="modal-container sub-modal">
+            <button class="modal-close" id="add-company-close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header-gradient">
+                <div class="modal-header-content">
+                    <h2 class="modal-title">Track New Company Board</h2>
+                    <p>Integrate a new target company board. Scans will query this feed dynamically.</p>
+                </div>
+            </div>
+            
+            <form id="add-company-form" class="modal-body-form">
+                <div class="modal-body scrollable-form" style="max-height: 400px; overflow-y: auto; padding-right: 8px;">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="new-co-name">Company Name</label>
+                            <input type="text" id="new-co-name" placeholder="e.g. Perplexity" required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="new-co-cohort">Cohort Category</label>
+                            <select id="new-co-cohort" required>
+                                <option value="Mag 7">Mag 7</option>
+                                <option value="AI Labs">AI Labs</option>
+                                <option value="High-Growth Startups">High-Growth Startups</option>
+                                <option value="Non-Mag 7">Non-Mag 7</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-co-portal-url">Careers Search Portal URL</label>
+                        <input type="url" id="new-co-portal-url" placeholder="e.g. https://careers.company.com/search?q=Product+Manager" required>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label style="margin-bottom: 8px; display: block; font-weight: 600;">Target Role Levels to Track</label>
+                        <div class="checkbox-tag-group" id="new-co-levels-group" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Standard" checked>
+                                <span>Standard</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Senior" checked>
+                                <span>Senior</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Staff" checked>
+                                <span>Staff</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Principal" checked>
+                                <span>Principal</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Director" checked>
+                                <span>Director</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Senior Director" checked>
+                                <span>Senior Director</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Vice President" checked>
+                                <span>Vice President</span>
+                            </label>
+                            <label class="check-tag mini">
+                                <input type="checkbox" name="new-co-level" value="Chief Product Officer" checked>
+                                <span>Chief Product Officer</span>
+                            </label>
+                        </div>
+                        <span class="input-tip" style="margin-top: 6px; display: block; font-size: 0.75rem; color: var(--text-muted);">Select which seniority levels you want to consider for search indexing for this company.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="add-company-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save and Track Board</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div class="modal-overlay" id="job-modal">
+        <div class="modal-container">
+            <button class="modal-close" id="modal-close-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="modal-header-gradient">
+                <div class="modal-header-content">
+                    <div class="modal-meta-top">
+                        <span class="modal-cohort-tag" id="modal-cohort">Top Tier Technology</span>
+                        <span class="modal-date" id="modal-date">Added 2026-06-02</span>
+                    </div>
+                    <h2 class="modal-title" id="modal-role-title">Lead Product Manager, AI Core</h2>
+                    <div class="modal-company-info">
+                        <span class="modal-company-name" id="modal-company">Google</span>
+                        <span class="modal-location"><i class="fa-solid fa-location-dot"></i> <span id="modal-loc-text">New York, NY</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Content Tabs -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="description">
+                    <i class="fa-solid fa-align-left"></i>
+                    <span>Job Description</span>
+                </button>
+                <button class="modal-tab" data-tab="interview">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>PM Interview Process</span>
+                </button>
+                <button class="modal-tab" data-tab="company-info">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span>Company Info</span>
+                </button>
+                <button class="modal-tab" data-tab="tracking" id="modal-tab-tracking" style="display: none;">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Application Tracker</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Description Tab -->
+                <div class="tab-pane active" id="pane-description">
+                    <div class="desc-loader" id="desc-loader">
+                        <div class="skeleton-line title"></div>
+                        <div class="skeleton-line paragraph"></div>
+                        <div class="skeleton-line paragraph"></div>
+                        <div class="skeleton-line paragraph"></div>
+                    </div>
+                    <div class="description-content" id="modal-desc-content">
+                        <!-- Scraped description injected here -->
+                    </div>
+                </div>
+
+                <!-- Interview Tab -->
+                <div class="tab-pane" id="pane-interview">
+                    <div class="interview-insight-container">
+                        <div class="insight-summary-card">
+                            <i class="fa-solid fa-lightbulb insight-bulb"></i>
+                            <div class="insight-summary-text">
+                                <h4>Company Interview Strategy</h4>
+                                <p id="modal-interview-summary">Specific prep insights for this company. Understand their evaluation criteria and standard questions.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="interview-stages">
+                            <h3 class="section-title">Standard Interview Loop Stages</h3>
+                            <div class="stages-timeline" id="modal-interview-stages">
+                                <!-- Stages injected here -->
+                            </div>
+                        </div>
+
+                        <div class="interview-tips-box">
+                            <h3 class="section-title"><i class="fa-solid fa-circle-check"></i> Pro-Tips for Success</h3>
+                            <ul class="tips-list" id="modal-interview-tips">
+                                <!-- Tips injected here -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Info Tab -->
+                <div class="tab-pane" id="pane-company-info">
+                    <div class="company-insights-grid">
+                        <div class="company-insight-item">
+                            <span class="insight-label"><i class="fa-solid fa-map-location-dot"></i> Headquarters</span>
+                            <span class="insight-val" id="comp-hq">N/A</span>
+                        </div>
+                        <div class="company-insight-item">
+                            <span class="insight-label"><i class="fa-solid fa-calendar-days"></i> Founded</span>
+                            <span class="insight-val" id="comp-founded">N/A</span>
+                        </div>
+                        <div class="company-insight-item">
+                            <span class="insight-label"><i class="fa-solid fa-money-bill-trend-up"></i> Annual Revenue (ARR)</span>
+                            <span class="insight-val" id="comp-revenue">N/A</span>
+                        </div>
+                        <div class="company-insight-item">
+                            <span class="insight-label"><i class="fa-solid fa-users"></i> Employees</span>
+                            <span class="insight-val" id="comp-employees">N/A</span>
+                        </div>
+                        <div class="company-insight-item span-full">
+                            <span class="insight-label"><i class="fa-solid fa-industry"></i> Industry Domain & Focus</span>
+                            <span class="insight-val" id="comp-domain">N/A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Application Tracker Tab -->
+                <div class="tab-pane" id="pane-tracking">
+                    <div class="tracking-panel-container">
+                        <form id="job-tracking-form" class="tracking-form">
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="track-status">Application Stage</label>
+                                    <select id="track-status">
+                                        <option value="Not Applied">Not Applied</option>
+                                        <option value="Applied">Applied</option>
+                                        <option value="Interviewing (HR Screen)">Interviewing (HR Screen)</option>
+                                        <option value="Interviewing (Hiring Manager Screen)">Interviewing (Hiring Manager Screen)</option>
+                                        <option value="Interviewing (Loop)">Interviewing (Loop)</option>
+                                        <option value="Interviewing (Final Round)">Interviewing (Final Round)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="track-outcome">Outcome</label>
+                                    <select id="track-outcome">
+                                        <option value="Active / Pending">Active / Pending</option>
+                                        <option value="Accepted">Accepted</option>
+                                        <option value="Rejected">Rejected</option>
+                                        <option value="Not applicable">Not applicable</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="track-resume">Google Drive Resume Link</label>
+                                <div class="input-with-action">
+                                    <input type="text" id="track-resume" placeholder="e.g. https://drive.google.com/file/d/12345/view">
+                                    <a href="#" target="_blank" class="btn btn-outline" id="btn-view-resume" style="display: none;">
+                                        <i class="fa-solid fa-file-pdf"></i> View Attached Resume
+                                    </a>
+                                </div>
+                                <span class="input-tip">Attach a PDF copy of the specific resume version used for this application.</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Tracking Updates
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="modal-footer-actions" id="modal-footer-actions">
+                    <!-- Dynamic modal footer action buttons -->
+                </div>
+                <a href="#" target="_blank" class="btn btn-outline" id="modal-job-link">
+                    <span>Apply on Careers Site</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

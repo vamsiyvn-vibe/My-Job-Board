@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Google Drive shortcuts
+*.gdoc
+*.gsheet
+
+# Personal Folders & Scraper dumps
+Cera Agency/
+Netflix/
+netflix_response.html
+netflix_search_no_pid.html
+out.html
+Job_Applications_Tracker.xlsx
+
+# Project Specific
+*.log
+.system_generated/
+.gemini/
+board/config.json
+
+# Temporary/Lock Files
+~$*.xlsx
+~$*.docx
+~$*.pptx
