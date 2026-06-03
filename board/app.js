@@ -1253,7 +1253,7 @@ function renderGrid(jobs) {
                 connectionsHtml = `
                     <div class="card-connections">
                         <i class="fa-solid fa-users text-primary"></i>
-                        <span>${linkHtml} <span class="conn-badge-pill" title="${matches.slice(1).map(c => `${c.first_name} ${c.last_name}`).join(', ')}">+${matches.length - 1}</span></span>
+                        <span>${linkHtml} <span class="conn-badge-pill" onclick="showConnectionsPopover(event, this, '${job.company.replace(/'/g, "\\'")}')" title="Click to view all ${matches.length} connections">+${matches.length - 1}</span></span>
                     </div>
                 `;
             } else {
@@ -1383,7 +1383,7 @@ function renderList(jobs) {
                     <td>
                         <div class="conn-cell-wrapper">
                             ${linkHtml}
-                            <span class="conn-badge-pill" title="${matches.slice(1).map(c => `${c.first_name} ${c.last_name}`).join(', ')}">+${matches.length - 1}</span>
+                            <span class="conn-badge-pill" onclick="showConnectionsPopover(event, this, '${job.company.replace(/'/g, "\\'")}')" title="Click to view all ${matches.length} connections">+${matches.length - 1}</span>
                         </div>
                     </td>
                 `;
@@ -2094,3 +2094,95 @@ window.openJobDetailsById = function(id) {
     const job = state.allJobs.find(j => j.id === id);
     if (job) openJobDetails(job);
 };
+
+// Reusable connections popover pop-up logic
+function showConnectionsPopover(e, element, companyName) {
+    e.stopPropagation();
+    
+    // Remove existing popover if present
+    const existing = document.querySelector('.connections-popover');
+    if (existing) {
+        existing.remove();
+        if (existing.getAttribute('data-origin-id') === element.id) {
+            return;
+        }
+    }
+    
+    const matches = findCompanyConnections(companyName);
+    if (matches.length === 0) return;
+    
+    if (!element.id) {
+        element.id = 'conn-' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    const popover = document.createElement('div');
+    popover.className = 'connections-popover';
+    popover.setAttribute('data-origin-id', element.id);
+    
+    const header = document.createElement('div');
+    header.className = 'popover-header';
+    header.innerHTML = `
+        <span>CONNECTIONS AT ${companyName.toUpperCase()} (${matches.length})</span>
+        <span class="close-btn"><i class="fa-solid fa-xmark"></i></span>
+    `;
+    header.querySelector('.close-btn').addEventListener('click', (evt) => {
+        evt.stopPropagation();
+        popover.remove();
+    });
+    
+    const body = document.createElement('div');
+    body.className = 'popover-body';
+    
+    matches.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'popover-item';
+        
+        const name = `${c.first_name} ${c.last_name}`;
+        item.innerHTML = `
+            <a href="${c.url}" target="_blank">
+                <i class="fa-brands fa-linkedin"></i> ${name}
+            </a>
+            <span>${c.position || 'Professional'}</span>
+        `;
+        body.appendChild(item);
+    });
+    
+    popover.appendChild(header);
+    popover.appendChild(body);
+    document.body.appendChild(popover);
+    
+    // Position alignment relative to viewport scroll settings
+    const rect = element.getBoundingClientRect();
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
+    
+    let top = rect.bottom + scrollY + 8;
+    let left = rect.left + scrollX;
+    
+    const popoverWidth = 280;
+    if (left + popoverWidth > window.innerWidth) {
+        left = window.innerWidth - popoverWidth - 16;
+    }
+    
+    const popoverHeight = popover.offsetHeight || 180;
+    if (rect.bottom + popoverHeight > window.innerHeight) {
+        top = rect.top + scrollY - popoverHeight - 8;
+    }
+    
+    popover.style.top = `${top}px`;
+    popover.style.left = `${left}px`;
+    
+    const clickOutsideHandler = (evt) => {
+        if (!popover.contains(evt.target) && evt.target !== element && !element.contains(evt.target)) {
+            popover.remove();
+            document.removeEventListener('click', clickOutsideHandler);
+        }
+    };
+    
+    setTimeout(() => {
+        document.addEventListener('click', clickOutsideHandler);
+    }, 10);
+}
+
+// Bind to window scope so onclick string attribute handles it correctly
+window.showConnectionsPopover = showConnectionsPopover;
