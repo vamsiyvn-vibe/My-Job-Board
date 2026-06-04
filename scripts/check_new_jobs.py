@@ -1304,11 +1304,30 @@ def check_company_jobs_ddg(company_name, cohort, search_criteria, config=None):
     locs = search_criteria.get("locations", ["New York", "NYC", "Remote"])
     loc_clause = " OR ".join(f'"{loc}"' for loc in locs)
     
+    portal_host = None
+    if config:
+        for co in config.get("companies", []):
+            if co.get("name", "").lower() == company_name.lower():
+                portal_url = co.get("portal_url", "")
+                if portal_url:
+                    try:
+                        parsed = urllib.parse.urlparse(portal_url)
+                        if parsed.netloc:
+                            portal_host = parsed.netloc.lower()
+                            if portal_host.startswith("www."):
+                                portal_host = portal_host[4:]
+                    except Exception:
+                        pass
+                break
+
     # Customize queries based on company
     if company_name.lower() == "meta":
         query = f'site:metacareers.com/jobs "Product Manager" ({loc_clause})'
     elif company_name.lower() == "tesla":
         query = f'site:tesla.com/careers "Product Manager" ({loc_clause})'
+    elif portal_host and not any(x in portal_host for x in ["google.com", "microsoft.com", "amazon.jobs", "amazon.com", "netflix.com", "nvidia.com", "apple.com", "greenhouse.io", "ashbyhq.com", "workable.com"]):
+        # Search the custom careers portal host AND standard boards
+        query = f'"{company_name}" "Product Manager" ({loc_clause}) (site:{portal_host} OR site:lever.co OR site:greenhouse.io OR site:ashbyhq.com)'
     else:
         query = f'"{company_name}" "Product Manager" ({loc_clause}) site:lever.co OR site:greenhouse.io OR site:ashbyhq.com'
         
@@ -1325,12 +1344,20 @@ def check_company_jobs_ddg(company_name, cohort, search_criteria, config=None):
                 is_job_page = True
             elif company_name.lower() == "tesla" and "/job/" in url_lower:
                 is_job_page = True
-            elif any(x in url_lower for x in ["/jobs/", "/job/", "/posting/", "/careers/"]):
+            elif any(x in url_lower for x in ["/jobs/", "/job/", "/posting/", "/careers/", "/position/", "/positions/"]):
                 is_job_page = True
+            elif portal_host and portal_host in url_lower:
+                if any(x in url_lower for x in ["search", "results", "category", "location", "jobs-results"]):
+                    is_job_page = False
+                else:
+                    is_job_page = True
                 
             if is_job_page:
                 # Fetch page to read the title
-                r = requests.get(url, timeout=6)
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                }
+                r = requests.get(url, headers=headers, timeout=6)
                 if r.status_code == 200:
                     soup = BeautifulSoup(r.text, 'html.parser')
                     title_text = soup.title.string if soup.title else ""

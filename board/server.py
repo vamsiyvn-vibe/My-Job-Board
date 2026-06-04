@@ -608,7 +608,8 @@ def add_company():
             if path_parts:
                 board_id = path_parts[0]
                 
-        capability = "portal_only" if platform in ["tesla", "ddg"] else "active_sync"
+        capability = "active_sync"
+
 
         # Determine default levels if none provided in POST request
         levels = new_co.get("levels", [])
