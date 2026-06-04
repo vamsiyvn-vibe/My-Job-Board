@@ -629,6 +629,173 @@ def check_workable_jobs(board, company_name, cohort, search_criteria, config=Non
         print(f"Error checking Workable {board} ({company_name}): {e}")
     return leads
 
+def check_lever_jobs(board, company_name, cohort, search_criteria, config=None):
+    url = f"https://api.lever.co/v0/postings/{board}?mode=json"
+    leads = []
+    try:
+        r = requests.get(url, timeout=12)
+        if r.status_code == 200:
+            jobs = r.json()
+            if isinstance(jobs, list):
+                for j in jobs:
+                    title = j.get("text", "")
+                    categories = j.get("categories", {})
+                    loc = categories.get("location", "") if isinstance(categories, dict) else ""
+                    
+                    if matches_criteria(title, [loc], search_criteria, company_name, config):
+                        salary = "N/A"
+                        desc = j.get("descriptionPlain") or ""
+                        addl = j.get("additionalPlain") or ""
+                        combined_desc = desc + "\n" + addl
+                        if combined_desc.strip():
+                            salary = extract_salary(combined_desc) or "N/A"
+                        
+                        leads.append({
+                            "cohort": cohort,
+                            "company": company_name,
+                            "role": title,
+                            "location": loc,
+                            "key_focus": "Discovered via Lever automated crawl",
+                            "url": j.get("hostedUrl"),
+                            "salary": salary
+                        })
+    except Exception as e:
+        print(f"Error checking Lever {board} ({company_name}): {e}")
+    return leads
+
+def check_workday_jobs(board, company_name, cohort, search_criteria, config=None):
+    leads = []
+    if not board or "|" not in board:
+        print(f"Error checking Workday {company_name}: invalid board parameter format. Expected 'host|tenant|site'.")
+        return leads
+        
+    parts = board.split("|")
+    if len(parts) < 3:
+        print(f"Error checking Workday {company_name}: invalid board parameters {parts}")
+        return leads
+        
+    host, tenant, site = parts[0], parts[1], parts[2]
+    url = f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    
+    keywords = search_criteria.get("custom_keywords", ["Product Manager"])
+    seen_paths = set()
+    
+    for kw in keywords[:3]:
+        payload = {
+            "appliedFacets": {},
+            "limit": 50,
+            "offset": 0,
+            "searchText": kw
+        }
+        try:
+            r = requests.post(url, json=payload, headers=headers, timeout=12)
+            if r.status_code == 200:
+                data = r.json()
+                job_postings = data.get("jobPostings", [])
+                for job in job_postings:
+                    title = job.get("title", "")
+                    external_path = job.get("externalPath", "")
+                    loc = job.get("locationsText", "")
+                    
+                    if external_path and external_path not in seen_paths:
+                        seen_paths.add(external_path)
+                        if matches_criteria(title, [loc], search_criteria, company_name, config):
+                            job_url = f"https://{host}/en-US/{site}{external_path}"
+                            
+                            salary = "N/A"
+                            try:
+                                detail_url = f"https://{host}/wday/cxs/{tenant}/{site}{external_path}"
+                                r_det = requests.get(detail_url, headers={"User-Agent": headers["User-Agent"], "Accept": "application/json"}, timeout=8)
+                                if r_det.status_code == 200:
+                                    det_data = r_det.json()
+                                    info = det_data.get("jobPostingInfo", {})
+                                    desc = info.get("jobDescription", "")
+                                    if desc:
+                                        salary = extract_salary(desc) or "N/A"
+                            except Exception as e_det:
+                                print(f"Error fetching Workday details/salary for {title}: {e_det}")
+                                
+                            leads.append({
+                                "cohort": cohort,
+                                "company": company_name,
+                                "role": title,
+                                "location": loc,
+                                "key_focus": "Discovered via Workday automated API sync",
+                                "url": job_url,
+                                "salary": salary
+                            })
+        except Exception as e:
+            print(f"Error checking Workday for {company_name} on '{kw}': {e}")
+            
+    return leads
+
+def check_tiktok_jobs(company_name, cohort, search_criteria, config=None):
+    url = "https://api.lifeattiktok.com/api/v1/public/supplier/search/job/posts"
+    leads = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/plain, */*",
+        "Origin": "https://lifeattiktok.com",
+        "Referer": "https://lifeattiktok.com/",
+        "website-path": "tiktok"
+    }
+    
+    keywords = search_criteria.get("custom_keywords", ["Product Manager"])
+    seen_ids = set()
+    
+    for kw in keywords[:3]:
+        payload = {
+            "keyword": kw,
+            "limit": 100,
+            "offset": 0
+        }
+        try:
+            r = requests.post(url, json=payload, headers=headers, timeout=12)
+            if r.status_code == 200:
+                data = r.json()
+                job_post_list = data.get("data", {}).get("job_post_list", []) or []
+                for p in job_post_list:
+                    title = p.get("title", "")
+                    pos_id = p.get("id", "")
+                    
+                    if pos_id and pos_id not in seen_ids:
+                        seen_ids.add(pos_id)
+                        
+                        city_info = p.get("city_info", {})
+                        city_name = city_info.get("en_name") if city_info else None
+                        parent_name = city_info.get("parent", {}).get("en_name") if city_info and city_info.get("parent") else None
+                        loc_str = f"{city_name}, {parent_name}" if (city_name and parent_name) else (city_name or "Remote / Various")
+                        
+                        if matches_criteria(title, [loc_str], search_criteria, company_name, config):
+                            job_url = f"https://careers.tiktok.com/position/{pos_id}"
+                            
+                            desc = p.get("description", "") or ""
+                            req = p.get("requirement", "") or ""
+                            combined = desc + "\n" + req
+                            salary = "N/A"
+                            if combined.strip():
+                                salary = extract_salary(combined) or "N/A"
+                                
+                            leads.append({
+                                "cohort": cohort,
+                                "company": company_name,
+                                "role": title,
+                                "location": loc_str,
+                                "key_focus": "Discovered via TikTok automated API sync",
+                                "url": job_url,
+                                "salary": salary
+                            })
+        except Exception as e:
+            print(f"Error checking TikTok for '{kw}': {e}")
+            
+    return leads
+
 def check_google_jobs(company_name, cohort, search_criteria, config=None):
     import urllib.parse
     import time
@@ -1299,8 +1466,256 @@ def check_netflix_jobs(company_name, cohort, search_criteria, config=None):
     return leads
 
 # Fallback Generic DuckDuckGo Search Crawler
+# Fallback Generic DuckDuckGo Search Crawler
+def detect_ats_from_portal(portal_url, company_name=""):
+    """
+    Returns (platform, board_id) if detected, otherwise (None, None)
+    """
+    if not portal_url:
+        return None, None
+        
+    try:
+        parsed = urllib.parse.urlparse(portal_url)
+        netloc = parsed.netloc.lower()
+        path = parsed.path
+        
+        # 1. Simple URL pattern matches first
+        if "greenhouse.io" in netloc:
+            queries = urllib.parse.parse_qs(parsed.query)
+            if "for" in queries:
+                return "greenhouse", queries["for"][0]
+            parts = [p for p in path.split("/") if p]
+            if parts:
+                return "greenhouse", parts[-1]
+                
+        if "lever.co" in netloc:
+            parts = [p for p in path.split("/") if p]
+            if parts:
+                return "lever", parts[0]
+                
+        if "ashbyhq.com" in netloc:
+            parts = [p for p in path.split("/") if p]
+            if parts:
+                return "ashby", parts[0]
+                
+        if "workable.com" in netloc:
+            parts = [p for p in path.split("/") if p]
+            if parts:
+                return "workable", parts[0]
+                
+        if "myworkdayjobs.com" in netloc:
+            tenant = netloc.split(".")[0]
+            parts = [p for p in path.split("/") if p]
+            site = "external"
+            if len(parts) >= 2:
+                if "-" in parts[0] or parts[0].lower() in ["en", "fr", "de", "es", "zh", "ja"]:
+                    site = parts[1]
+                else:
+                    site = parts[0]
+            elif len(parts) == 1:
+                site = parts[0]
+            return "workday", f"{netloc}|{tenant}|{site}"
+
+        # 2. Custom domain checks via GET request
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        
+        r = requests.get(portal_url, headers=headers, timeout=10, allow_redirects=True)
+        final_url = r.url
+        final_parsed = urllib.parse.urlparse(final_url)
+        final_netloc = final_parsed.netloc.lower()
+        
+        if any(x in final_netloc for x in ["greenhouse.io", "lever.co", "ashbyhq.com", "workable.com", "myworkdayjobs.com"]):
+            return detect_ats_from_portal(final_url, company_name)
+            
+        html_text = r.text
+        
+        lever_match = re.search(r'jobs\.lever\.co/([^/?"\'\s>]+)', html_text)
+        if lever_match:
+            return "lever", lever_match.group(1)
+            
+        grnh_match = re.search(r'boards\.greenhouse\.io/embed/job_board\?for=([^&"\'\s>]+)', html_text)
+        if grnh_match:
+            return "greenhouse", grnh_match.group(1)
+        grnh_match2 = re.search(r'boards\.greenhouse\.io/([^/?"\'\s>]+)', html_text)
+        if grnh_match2 and grnh_match2.group(1) != "embed":
+            return "greenhouse", grnh_match2.group(1)
+            
+        ashby_match = re.search(r'jobs\.ashbyhq\.com/([^/?"\'\s>]+)', html_text)
+        if ashby_match:
+            return "ashby", ashby_match.group(1)
+            
+        workable_match = re.search(r'apply\.workable\.com/([^/?"\'\s>]+)', html_text)
+        if workable_match:
+            return "workable", workable_match.group(1)
+            
+        workday_match = re.search(r'([^/?"\'\s>]+)\.myworkdayjobs\.com/([^/?"\'\s>]+)', html_text)
+        if workday_match:
+            tenant_sub = workday_match.group(1)
+            site_sub = workday_match.group(2)
+            site_parts = [p for p in site_sub.split("/") if p]
+            site_val = site_parts[0] if site_parts else "external"
+            tenant_val = tenant_sub.split(".")[0]
+            host_val = f"{tenant_sub}.myworkdayjobs.com"
+            return "workday", f"{host_val}|{tenant_val}|{site_val}"
+
+        # 3. CNAME lookup
+        try:
+            canonical_name, aliases, ip_list = socket.gethostbyname_ex(netloc)
+            for host_name in [canonical_name] + aliases:
+                host_lower = host_name.lower()
+                slug = company_name.lower().replace(" ", "") if company_name else "careers"
+                if "greenhouse.io" in host_lower:
+                    return "greenhouse", slug
+                if "lever.co" in host_lower:
+                    return "lever", slug
+                if "ashbyhq.com" in host_lower:
+                    return "ashby", slug
+                if "workable.com" in host_lower:
+                    return "workable", slug
+                if "myworkdayjobs.com" in host_lower:
+                    tenant = host_lower.split(".")[0]
+                    return "workday", f"{host_lower}|{tenant}|external"
+        except Exception:
+            pass
+
+        # 4. Probing standard ATS APIs with candidate slugs as generic fallback
+        slugs = []
+        s1 = re.sub(r'[^a-z0-9]', '', company_name.lower())
+        if s1:
+            slugs.append(s1)
+        s2 = re.sub(r'[^a-z0-9-]', '', company_name.lower().replace(' ', '-'))
+        if s2 and s2 != s1:
+            slugs.append(s2)
+        
+        domain_slug = None
+        if portal_url:
+            try:
+                p_url = urllib.parse.urlparse(portal_url)
+                parts = p_url.netloc.split('.')
+                if len(parts) >= 2:
+                    domain_slug = parts[-2].lower()
+            except Exception:
+                pass
+        if domain_slug and domain_slug not in slugs:
+            slugs.append(domain_slug)
+            if domain_slug.endswith("hq") and len(domain_slug) > 2:
+                s3 = domain_slug[:-2]
+                if s3 not in slugs:
+                    slugs.append(s3)
+                    
+        for slug in slugs:
+            # Probe Greenhouse
+            try:
+                probe_url = f"https://api.greenhouse.io/v1/boards/{slug}/jobs"
+                probe_r = requests.get(probe_url, timeout=5)
+                if probe_r.status_code == 200:
+                    data = probe_r.json()
+                    if isinstance(data, dict) and "jobs" in data:
+                        return "greenhouse", slug
+            except Exception:
+                pass
+                
+            # Probe Lever
+            try:
+                probe_url = f"https://api.lever.co/v0/postings/{slug}?mode=json"
+                probe_r = requests.get(probe_url, timeout=5)
+                if probe_r.status_code == 200:
+                    data = probe_r.json()
+                    if isinstance(data, list):
+                        return "lever", slug
+            except Exception:
+                pass
+                
+            # Probe Ashby
+            try:
+                probe_url = f"https://api.ashbyhq.com/posting-api/job-board/{slug}"
+                probe_r = requests.get(probe_url, timeout=5)
+                if probe_r.status_code == 200:
+                    data = probe_r.json()
+                    if isinstance(data, dict) and "jobs" in data:
+                        return "ashby", slug
+            except Exception:
+                pass
+                
+            # Probe Workable
+            try:
+                probe_url = f"https://apply.workable.com/api/v1/accounts/{slug}/jobs"
+                probe_r = requests.post(probe_url, json={}, timeout=5)
+                if probe_r.status_code == 200:
+                    data = probe_r.json()
+                    if isinstance(data, dict) and "results" in data:
+                        return "workable", slug
+            except Exception:
+                pass
+
+            # Probe Workday
+            try:
+                for site in ["external", "External"]:
+                    probe_url = f"https://{slug}.myworkdayjobs.com/wday/cxs/{slug}/{site}/jobs"
+                    probe_r = requests.post(probe_url, json={"appliedFacets": {}, "limit": 1, "offset": 0, "searchText": ""}, headers={"User-Agent": headers["User-Agent"], "Accept": "application/json", "Content-Type": "application/json"}, timeout=5)
+                    if probe_r.status_code == 200:
+                        data = probe_r.json()
+                        if isinstance(data, dict) and "jobPostings" in data:
+                            return "workday", f"{slug}.myworkdayjobs.com|{slug}|{site}"
+            except Exception:
+                pass
+
+    except Exception as e:
+        print(f"Error detecting ATS for {portal_url}: {e}")
+        
+    return None, None
+
 def check_company_jobs_ddg(company_name, cohort, search_criteria, config=None):
     leads = []
+    
+    # 1. Attempt dynamic ATS detection from portal URL
+    portal_url = None
+    if config:
+        for co in config.get("companies", []):
+            if co.get("name", "").lower() == company_name.lower():
+                portal_url = co.get("portal_url", "")
+                break
+                
+    if portal_url:
+        print(f"Attempting to auto-detect ATS for {company_name} from: {portal_url}...")
+        platform, board_id = detect_ats_from_portal(portal_url, company_name)
+        if platform and board_id:
+            print(f" -> Auto-detected {platform} board '{board_id}' for {company_name}!")
+            
+            # Save the detected platform and board_id back to config.json
+            if config:
+                config_changed = False
+                for co in config.get("companies", []):
+                    if co.get("name", "").lower() == company_name.lower():
+                        co["platform"] = platform
+                        co["board_id"] = board_id
+                        co["capability"] = "active_sync"
+                        config_changed = True
+                        break
+                if config_changed:
+                    print(f" -> Auto-updating config.json with detected {platform} settings...")
+                    try:
+                        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+                            json.dump(config, f, indent=2)
+                    except Exception as e:
+                        print(f"Error saving auto-detected config settings: {e}")
+            
+            # Route to the appropriate sync crawler
+            if platform == "greenhouse":
+                return check_greenhouse_jobs(board_id, company_name, cohort, search_criteria, config)
+            elif platform == "ashby":
+                return check_ashby_jobs(board_id, company_name, cohort, search_criteria, config)
+            elif platform == "workable":
+                return check_workable_jobs(board_id, company_name, cohort, search_criteria, config)
+            elif platform == "lever":
+                return check_lever_jobs(board_id, company_name, cohort, search_criteria, config)
+            elif platform == "workday":
+                return check_workday_jobs(board_id, company_name, cohort, search_criteria, config)
+        else:
+            print(f" -> No standard ATS footprint detected for {company_name}. Using search fallback.")
+            
     locs = search_criteria.get("locations", ["New York", "NYC", "Remote"])
     loc_clause = " OR ".join(f'"{loc}"' for loc in locs)
     
@@ -1505,16 +1920,16 @@ def run_daily_scan(target_company=None):
         if target_company and co["name"].lower() != target_company.lower():
             continue
             
-        if (co.get("hq") == "N/A" or co.get("founded") == "N/A" or 
-            co.get("revenue") == "N/A" or co.get("employees") == "N/A" or 
-            co.get("domain") == "N/A" or not co.get("hq") or not co.get("domain")):
+        if (not co.get("hq") or not co.get("founded") or 
+            not co.get("revenue") or not co.get("employees") or 
+            not co.get("domain")):
             
             print(f"Auto-enriching details for {co['name']}...")
             try:
                 enriched = fetch_company_details(co["name"])
-                # Update fields that are N/A or empty
+                # Update fields that are empty
                 for field in ["hq", "founded", "revenue", "employees", "domain"]:
-                    if co.get(field) == "N/A" or not co.get(field):
+                    if not co.get(field):
                         co[field] = enriched[field]
                 config_changed = True
             except Exception as e:
@@ -1601,6 +2016,12 @@ def run_daily_scan(target_company=None):
                 co_leads = check_ashby_jobs(board_id, name, cohort, search_criteria, config)
             elif platform == "workable":
                 co_leads = check_workable_jobs(board_id, name, cohort, search_criteria, config)
+            elif platform == "lever":
+                co_leads = check_lever_jobs(board_id, name, cohort, search_criteria, config)
+            elif platform == "workday":
+                co_leads = check_workday_jobs(board_id, name, cohort, search_criteria, config)
+            elif platform == "tiktok":
+                co_leads = check_tiktok_jobs(name, cohort, search_criteria, config)
             else: # tesla, ddg, or any other general
                 co_leads = check_company_jobs_ddg(name, cohort, search_criteria, config)
                 
