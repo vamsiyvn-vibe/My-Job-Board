@@ -235,7 +235,27 @@ def is_job_url_closed(url, company_name):
                 return True
             return False
             
-        # 9. Generic
+        # 9. Google Careers
+        elif "google.com/about/careers" in url.lower():
+            r = requests.get(url, headers=headers, timeout=10, allow_redirects=True, verify=False)
+            if r.status_code == 404:
+                return True
+            if r.status_code in [400, 403]:
+                return False
+            soup = BeautifulSoup(r.text, 'html.parser')
+            title = soup.title.string if soup.title else ""
+            if title:
+                title_lower = title.strip().lower()
+                # If title contains 'jobs search' or is exactly 'google careers', the job listing is closed/inactive
+                if "jobs search" in title_lower or title_lower == "google careers":
+                    return True
+            # Fallback text check
+            text = soup.get_text().lower()
+            if "no longer available" in text or "job you are looking for is closed" in text:
+                return True
+            return False
+            
+        # 10. Generic
         else:
             r = requests.get(url, headers=headers, timeout=10, allow_redirects=True, verify=False)
             if r.status_code == 404:
