@@ -2059,13 +2059,13 @@ def run_daily_scan(target_company=None):
             cell = ws.cell(row=row_idx, column=8)
             existing_url = cell.hyperlink.target if cell.hyperlink else cell.value
             
-            if is_placeholder_url(existing_url):
-                print(f"Updating URL for: {lead['company']} - {lead['role']}")
+            if not existing_url or is_placeholder_url(existing_url) or existing_url != lead["url"]:
+                print(f"Updating/Correcting URL for: {lead['company']} - {lead['role']}")
                 cell.value = "Link to Job Description"
                 cell.hyperlink = lead["url"]
                 cell.font = link_font
                 cell.alignment = Alignment(horizontal="center", vertical="center")
-                ws.cell(row=row_idx, column=10).value = "Direct link auto-updated via scan."
+                ws.cell(row=row_idx, column=10).value = "Direct link auto-updated/corrected via scan."
                 updated_count += 1
             
             # If the job was previously archived as Closed, but shows up again, restore it

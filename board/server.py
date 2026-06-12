@@ -524,6 +524,19 @@ def single_company_scan_thread(company_name):
         with scan_lock:
             is_scanning = False
 
+def fix_worksheet_hyperlinks(ws):
+    """
+    Fixes openpyxl's shifted hyperlink refs after delete_rows is called.
+    Updates the ref attribute of all cell hyperlinks in the worksheet.
+    """
+    from openpyxl.utils import get_column_letter
+    for row in range(1, ws.max_row + 1):
+        for col in range(1, ws.max_column + 1):
+            cell = ws.cell(row=row, column=col)
+            if cell.hyperlink:
+                col_letter = get_column_letter(col)
+                cell.hyperlink.ref = f"{col_letter}{row}"
+
 def delete_company_jobs_from_excel(company_name):
     if not os.path.exists(TRACKER_PATH):
         return 0
@@ -539,6 +552,7 @@ def delete_company_jobs_from_excel(company_name):
                     ws.delete_rows(r_idx)
                     deleted_count += 1
             if deleted_count > 0:
+                fix_worksheet_hyperlinks(ws)
                 wb.save(TRACKER_PATH)
             return deleted_count
     except Exception as e:
@@ -793,6 +807,7 @@ def delete_job(row_id):
             return jsonify({"error": f"Invalid job ID: {row_id}"}), 400
             
         ws.delete_rows(row_id)
+        fix_worksheet_hyperlinks(ws)
         wb.save(TRACKER_PATH)
         
         # Invalidate in-memory cache to force immediate reload
