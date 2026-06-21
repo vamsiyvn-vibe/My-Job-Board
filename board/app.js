@@ -1889,7 +1889,8 @@ function normalizeCompanyName(name) {
     if (!name) return '';
     return name.toLowerCase()
         .replace(/\b(llc|inc|corp|ltd|co|corporation|incorporated|technologies|services|labs|group|usa|us)\b/gi, '')
-        .replace(/[^a-z0-9]/gi, '')
+        .replace(/[^a-z0-9\s]/gi, '')
+        .replace(/\s+/g, ' ')
         .trim();
 }
 
@@ -1900,10 +1901,28 @@ function findCompanyConnections(companyName) {
     const targetNorm = normalizeCompanyName(companyName);
     if (!targetNorm) return [];
     
+    const targetWords = targetNorm.split(' ');
+    
     return state.connections.filter(c => {
         const connNorm = normalizeCompanyName(c.company);
         if (!connNorm) return false;
-        return connNorm.includes(targetNorm) || targetNorm.includes(connNorm);
+        
+        // Exact match
+        if (connNorm === targetNorm) return true;
+        
+        // Word-level match to avoid partial-word matches (like "go" in "google")
+        const connWords = connNorm.split(' ');
+        
+        if (targetWords.length === 1) {
+            return connWords.includes(targetWords[0]);
+        }
+        if (connWords.length === 1) {
+            return targetWords.includes(connWords[0]);
+        }
+        
+        const shorter = targetWords.length < connWords.length ? targetWords : connWords;
+        const longer = targetWords.length < connWords.length ? connWords : targetWords;
+        return shorter.every(word => longer.includes(word));
     });
 }
 
