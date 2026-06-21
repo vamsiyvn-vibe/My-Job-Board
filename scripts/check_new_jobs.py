@@ -2157,10 +2157,8 @@ def run_daily_scan(target_company=None):
                 cohort = cell.value
                 if cohort == "Mag 7":
                     cell.fill = PatternFill(start_color="DDEBF7", end_color="DDEBF7", fill_type="solid") # Light Blue
-                elif cohort == "AI Labs":
+                elif cohort in ["AI Labs", "High-Growth Startups", "AI Labs & Startups"]:
                     cell.fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid") # Light Green
-                elif cohort == "High-Growth Startups":
-                    cell.fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid") # Light Yellow
                 elif cohort == "Non-Mag 7":
                     cell.fill = PatternFill(start_color="FCE4D6", end_color="FCE4D6", fill_type="solid") # Light Peach
                 

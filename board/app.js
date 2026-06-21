@@ -3,7 +3,7 @@ let state = {
     allJobs: [],
     currentView: 'Lead', // All, Lead, Consideration, Archived, Criteria
     currentLayout: 'grid', // grid, list
-    selectedCohort: 'all', // all, Mag 7, AI Labs, High-Growth Startups, Non-Mag 7
+    selectedCohort: 'all', // all, Mag 7, AI Labs & Startups, Non-Mag 7
     selectedCompany: 'all',
     selectedLevel: 'all',
     selectedSalary: 'all',
@@ -1037,8 +1037,9 @@ function render() {
             if (s.includes('mag 7')) {
                 return c.includes('mag 7') && !c.includes('non-mag');
             }
-            if (s.includes('ai labs')) return c.includes('labs') || c.includes('ai');
-            if (s.includes('startups')) return c.includes('startup') || c.includes('high-growth');
+            if (s.includes('ai labs') || s.includes('startups') || s.includes('labs & startups')) {
+                return c.includes('labs') || c.includes('ai') || c.includes('startup') || c.includes('high-growth');
+            }
             return c === s;
         });
     }
@@ -1136,8 +1137,9 @@ function renderPortals() {
             if (s.includes('mag 7')) {
                 return c.includes('mag 7') && !c.includes('non-mag');
             }
-            if (s.includes('ai labs')) return c.includes('labs') || c.includes('ai');
-            if (s.includes('startups')) return c.includes('startup') || c.includes('high-growth');
+            if (s.includes('ai labs') || s.includes('startups') || s.includes('labs & startups')) {
+                return c.includes('labs') || c.includes('ai') || c.includes('startup') || c.includes('high-growth');
+            }
             return c === s;
         });
     }
