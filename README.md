@@ -9,12 +9,12 @@ This repository contains the interactive Job Leads Board and background sync cra
 *   **Google Docs Master Cover Letter:** [Link here]
 *   **LinkedIn Profile:** [Link here]
 *   **Portfolio Website:** [Link here]
-*   **Master Resume Bullet Points & STAR Stories:** [Google Doc](https://docs.google.com/document/d/1QTKiR9vH9j39EanaHltSr0VS8zLpA_NCpgxiVSBdc1U/edit?tab=t.0)
+*   **Master Resume Bullet Points & STAR Stories:** [Link here]
 
 ---
 
 ## 📊 Application Tracking & Tools
-*   **Job Leads Tracker:** [Job_Leads_Tracker.xlsx](file:///G:/My%20Drive/.Agents/1_Projects/2026%20Job%20Search/Job_Leads_Tracker.xlsx) *(Categorized by cohort: Mag 7, AI Labs, High-Growth Startups, Non-Mag 7)*
+*   **Job Leads Tracker:** [Link here] *(Categorized by cohort: Mag 7, AI Labs, High-Growth Startups, Non-Mag 7)*
 
 ---
 
