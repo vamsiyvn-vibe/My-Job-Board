@@ -1,0 +1,30 @@
+stages:
+  - lint
+
+python-syntax-and-boot:
+  stage: lint
+  image: python:3.12-slim
+  script:
+    - pip install --no-cache-dir -r requirements.txt
+    - python -m py_compile board/server.py scripts/check_new_jobs.py
+    - |
+      python - <<'EOF'
+      import os, tempfile, sys
+      sys.path.insert(0, os.path.abspath("board"))
+      os.environ["PM_BOARD_DATA_DIR"] = tempfile.mkdtemp()
+      import server
+      server.init_sqlite_db()
+      client = server.app.test_client()
+      for route in ("/", "/app.js", "/styles.css", "/api/delivery/real-questions", "/api/delivery/star-bank", "/api/delivery/sessions", "/api/interview-reviews"):
+          resp = client.get(route)
+          assert resp.status_code == 200, f"{route} returned {resp.status_code}"
+          print(f"OK {route} -> {resp.status_code}")
+      print("Flask smoke test passed across all core routes.")
+      EOF
+
+frontend-js-check:
+  stage: lint
+  image: node:20-slim
+  script:
+    - node --check board/app.js
+    - node --check board/sw.js

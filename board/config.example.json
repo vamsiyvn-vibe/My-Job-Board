@@ -1,0 +1,22 @@
+{
+  "profile": {
+    "name": "Your Name",
+    "email": "you@example.com",
+    "location": "Remote / Hybrid",
+    "target_titles": [
+      "Product Manager",
+      "Senior Product Manager",
+      "Staff Product Manager"
+    ],
+    "llm_base_url": "https://api.groq.com/openai/v1",
+    "llm_model": "openai/gpt-oss-20b"
+  },
+  "companies": [
+    {
+      "name": "Example Corp",
+      "platform": "greenhouse",
+      "board_id": "example",
+      "portal_url": "https://example.com/careers"
+    }
+  ]
+}

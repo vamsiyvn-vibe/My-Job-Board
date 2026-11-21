@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Personal data, databases, secrets & logs
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.log
+.env
+.flask_secret
+board/config.json
+board/connections.json
+board/coaches.json
+board/company_groups.json
+board/data/
+board/interview_prep/
+board/generated_resumes/
+board/resume_kit/
+board/artifacts/
+board/role_fit_rubric.md
+board/*.jsonl
+board/*.pdf
+board/*.docx
+*.xlsx
+*.mp3
+*.mp4
+*.wav
+*.webm
+*.m4a
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
